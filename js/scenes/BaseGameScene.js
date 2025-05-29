@@ -40,7 +40,7 @@ class BaseGameScene extends Phaser.Scene {
     const feedback = this.add.text(x, y, text, {
       fontSize: '16px',
       fill: Phaser.Display.Color.IntegerToColor(color).rgba,
-      fontFamily: 'Courier New'
+      fontFamily: UI_CONFIG.FONT.family
     }).setOrigin(0.5);
     
     this.tweens.add({
@@ -64,7 +64,7 @@ class BaseGameScene extends Phaser.Scene {
     const countdownText = this.add.text(centerX, centerY, count.toString(), {
       fontSize: '48px',
       color: '#ffff00',
-      fontFamily: 'Courier New'
+      fontFamily: UI_CONFIG.FONT.family
     }).setOrigin(0.5);
     
     const countdownTimer = this.time.addEvent({
@@ -195,7 +195,7 @@ class BaseGameScene extends Phaser.Scene {
     // 「ナイス!」演出
     const niceText = this.add.text(centerX, centerY, 'ナイス!', {
       fontSize: '48px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#00ff00',
       stroke: '#ffffff',
       strokeThickness: 4

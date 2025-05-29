@@ -7,7 +7,8 @@ class ScoreManager {
         currentGame: 0,
         gamesCompleted: 0,
         gameSequence: [],
-        highScore: localStorage.getItem('retroRushHighScore') || 0
+        highScore: localStorage.getItem('retroRushHighScore') || 0,
+        completedGames: new Set() // 完了したゲームを追跡
       };
     }
     return window.gameState;
@@ -19,6 +20,7 @@ class ScoreManager {
     state.currentGame = 0;
     state.gamesCompleted = 0;
     state.gameSequence = this.generateGameSequence();
+    state.completedGames = new Set(); // リセット時にクリア
   }
 
   static generateGameSequence() {
@@ -70,7 +72,12 @@ class ScoreManager {
 
   static completeGame() {
     const state = this.getGameState();
-    state.gamesCompleted++;
+    // 現在のゲームが既に完了していない場合のみカウント
+    const currentGameKey = state.gameSequence[state.currentGame];
+    if (currentGameKey && !state.completedGames.has(currentGameKey + state.currentGame)) {
+      state.gamesCompleted++;
+      state.completedGames.add(currentGameKey + state.currentGame);
+    }
   }
 
   static updateHighScore() {

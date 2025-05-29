@@ -18,6 +18,12 @@ const UI_CONFIG = {
     showResult: 500,
     autoNext: 300,
     betweenGames: 200
+  },
+  // フォント設定
+  FONT: {
+    key: 'MaruMinya',
+    family: 'MaruMinya',
+    fallback: 'Courier New'
   }
 };
 

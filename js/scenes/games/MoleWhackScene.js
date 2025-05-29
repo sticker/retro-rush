@@ -32,19 +32,19 @@ class MoleWhackScene extends BaseGameScene {
     
     this.add.text(centerX, 30, 'モグラタタキ', {
       fontSize: '24px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     this.scoreText = this.add.text(50, 80, 'SCORE: 0', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     });
     
     this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 5', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(1, 0);
   }
@@ -147,12 +147,14 @@ class MoleWhackScene extends BaseGameScene {
     this.moles.forEach(mole => mole.setVisible(false));
     
     ScoreManager.addScore(this.score);
-    ScoreManager.completeGame();
     
     // クリア判定（例: 300点以上でクリア）
     const isCleared = this.score >= 300;
     
     if (isCleared) {
+      // クリア時のみゲーム完了としてカウント
+      ScoreManager.completeGame();
+      
       // クリア演出
       this.showClearEffect(() => {
         this.endGameAndTransition();

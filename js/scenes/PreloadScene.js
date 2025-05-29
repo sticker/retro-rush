@@ -1,4 +1,5 @@
 import RetroEffects from '../utils/RetroEffects.js';
+import UI_CONFIG from '../utils/UI_CONFIG.js';
 
 class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -41,6 +42,12 @@ class PreloadScene extends Phaser.Scene {
     this.load.on('complete', () => {
       loadingText.setText('Complete!');
     });
+    
+    // フォントをロード
+    this.load.bitmapFont(UI_CONFIG.FONT.key, 
+      'assets/fonts/x12y12pxMaruMinya.png',
+      'assets/fonts/x12y12pxMaruMinya.xml'
+    );
     
     // 音声ファイルをロード
     this.load.audio('nextGame', 'assets/sounds/NextGame.mp3');

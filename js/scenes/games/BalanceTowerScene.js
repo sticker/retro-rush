@@ -37,38 +37,38 @@ class BalanceTowerScene extends BaseGameScene {
     
     this.add.text(centerX, 30, 'バランスタワー', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     this.scoreText = this.add.text(50, 80, 'SCORE: 0', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     });
     
     this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 7', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(1, 0);
     
     // タイムバー
-    this.timeBarBg = this.add.rectangle(centerX, 100, 200, 20, 0x333333);
+    this.timeBarBg = this.add.rectangle(centerX, 140, 200, 20, 0x333333);
     this.timeBarBg.setStrokeStyle(2, 0x666666);
-    this.timeBar = this.add.rectangle(centerX - 100, 100, 200, 16, 0x00ff00);
+    this.timeBar = this.add.rectangle(centerX - 100, 140, 200, 16, 0x00ff00);
     this.timeBar.setOrigin(0, 0.5);
     
-    this.add.text(centerX, 120, 'スマホを傾けてバランスを取れ！', {
+    this.add.text(centerX, 160, 'スマホを傾けてバランスを取れ！', {
       fontSize: '12px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     // フォールバック用のタッチコントロール説明
     this.add.text(centerX, this.game.config.height - 60, '※傾きセンサー非対応の場合は\n左右タップで操作', {
       fontSize: '10px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#888888'
     }).setOrigin(0.5);
   }
@@ -149,13 +149,13 @@ class BalanceTowerScene extends BaseGameScene {
     
     this.add.text(this.game.config.width * 0.25, this.game.config.height * 0.9, '左', {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#666666'
     }).setOrigin(0.5);
     
     this.add.text(this.game.config.width * 0.75, this.game.config.height * 0.9, '右', {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#666666'
     }).setOrigin(0.5);
   }
@@ -304,17 +304,18 @@ class BalanceTowerScene extends BaseGameScene {
     if (this.disturbanceTimer) this.disturbanceTimer.destroy();
     
     ScoreManager.addScore(this.score);
-    ScoreManager.completeGame();
     
     // クリア判定
     const isCleared = success && !this.isFallen;
     
     if (isCleared) {
+      // クリア時のみゲーム完了としてカウント
+      ScoreManager.completeGame();
       this.showClearEffect();
       HapticManager.success();
       this.add.text(this.game.config.width / 2, this.game.config.height / 2, 'SUCCESS!', {
         fontSize: '24px',
-        fontFamily: 'Courier New',
+        fontFamily: UI_CONFIG.FONT.family,
         color: '#00ff00'
       }).setOrigin(0.5);
       RetroEffects.createParticles(this, this.game.config.width / 2, this.game.config.height / 2, 'success');

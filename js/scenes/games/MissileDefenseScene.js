@@ -32,32 +32,32 @@ class MissileDefenseScene extends BaseGameScene {
     
     this.add.text(centerX, 30, 'ミサイルディフェンス', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     this.scoreText = this.add.text(50, 80, 'SCORE: 0', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     });
     
     this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 7', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(1, 0);
     
     // 撃墜数表示
     this.destroyedText = this.add.text(centerX, 100, '撃墜: ☆☆☆☆☆', {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     
     this.add.text(centerX, 120, 'ミサイルをタップして撃墜せよ！', {
       fontSize: '12px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
   }
@@ -248,12 +248,13 @@ class MissileDefenseScene extends BaseGameScene {
     this.missiles = [];
     
     ScoreManager.addScore(this.score);
-    ScoreManager.completeGame();
     
     // クリア判定
     const isCleared = this.missilesDestroyed >= 5;
     
     if (isCleared) {
+      // クリア時のみゲーム完了としてカウント
+      ScoreManager.completeGame();
       this.showClearEffect();
     } else {
       this.showFailEffect();
@@ -265,7 +266,7 @@ class MissileDefenseScene extends BaseGameScene {
     
     this.add.text(this.game.config.width / 2, this.game.config.height / 2, resultText, {
       fontSize: '24px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: Phaser.Display.Color.IntegerToColor(resultColor).rgba
     }).setOrigin(0.5);
     

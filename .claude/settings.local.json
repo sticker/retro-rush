@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python3:*)",
       "Bash(mkdir:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)"
     ]
   },
   "enableAllProjectMcpServers": false

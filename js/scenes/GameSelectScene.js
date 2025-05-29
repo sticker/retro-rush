@@ -15,14 +15,14 @@ class GameSelectScene extends Phaser.Scene {
     // タイトル
     this.add.text(centerX, 30, 'ゲーム選択', {
       fontSize: '28px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     // サブタイトル
     this.add.text(centerX, 70, '遊びたいゲームをタップ！', {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     
@@ -67,7 +67,7 @@ class GameSelectScene extends Phaser.Scene {
       // ゲーム名
       const text = this.add.text(centerX, y, game.name, {
         fontSize: '20px',
-        fontFamily: 'Courier New',
+        fontFamily: UI_CONFIG.FONT.family,
         color: '#ffffff'
       }).setOrigin(0.5);
       
@@ -115,7 +115,7 @@ class GameSelectScene extends Phaser.Scene {
     
     const backText = this.add.text(centerX, backY, '戻る', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     

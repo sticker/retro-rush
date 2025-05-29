@@ -38,19 +38,19 @@ class ColorMatchScene extends BaseGameScene {
     
     this.add.text(centerX, 30, 'カラーマッチ', {
       fontSize: '24px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     this.scoreText = this.add.text(50, 80, 'SCORE: 0', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     });
     
     this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 6', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(1, 0);
     
@@ -61,7 +61,7 @@ class ColorMatchScene extends BaseGameScene {
     
     this.colorNameText = this.add.text(centerX, centerY + 80, '', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
   }
@@ -172,12 +172,13 @@ class ColorMatchScene extends BaseGameScene {
     if (this.colorTimer) this.colorTimer.destroy();
     
     ScoreManager.addScore(this.score);
-    ScoreManager.completeGame();
     
     // クリア判定
     const isCleared = this.score >= 600;
     
     if (isCleared) {
+      // クリア時のみゲーム完了としてカウント
+      ScoreManager.completeGame();
       this.showClearEffect();
     } else {
       this.showFailEffect();

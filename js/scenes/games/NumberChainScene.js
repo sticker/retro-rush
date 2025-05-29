@@ -40,39 +40,39 @@ class NumberChainScene extends BaseGameScene {
     
     this.add.text(centerX, 30, 'ナンバーチェイン', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     this.scoreText = this.add.text(50, 80, 'SCORE: 0', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     });
     
     this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 8', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(1, 0);
     
     // 次の数字表示
     this.nextNumberText = this.add.text(centerX, 100, '次は: [1]', {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#00ff00'
     }).setOrigin(0.5);
     
     this.add.text(centerX, 120, '1→2→3→4→5の順でタップ！', {
       fontSize: '12px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     // チェーン表示エリア
     this.chainText = this.add.text(centerX, 140, '', {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
   }
@@ -97,7 +97,7 @@ class NumberChainScene extends BaseGameScene {
       
       const text = this.add.text(pos.x, pos.y, number.toString(), {
         fontSize: '24px',
-        fontFamily: 'Courier New',
+        fontFamily: UI_CONFIG.FONT.family,
         color: '#ffffff'
       }).setOrigin(0.5);
       
@@ -319,7 +319,7 @@ class NumberChainScene extends BaseGameScene {
     
     this.add.text(this.game.config.width / 2, this.game.config.height / 2, 'CHAIN COMPLETE!', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ff00ff'
     }).setOrigin(0.5);
     
@@ -344,19 +344,22 @@ class NumberChainScene extends BaseGameScene {
     }
     
     ScoreManager.addScore(this.gameState.score);
-    ScoreManager.completeGame();
     
     // クリア判定
     const isCleared = this.gameState.chain.length === 5;
     
-    if (isCleared && !fromCompleteChain) {
-      // completeChain()から呼ばれた場合は既にエフェクトが表示されているのでスキップ
-      this.showClearEffect();
-    } else if (!isCleared) {
+    if (isCleared) {
+      // クリア時のみゲーム完了としてカウント
+      ScoreManager.completeGame();
+      if (!fromCompleteChain) {
+        // completeChain()から呼ばれた場合は既にエフェクトが表示されているのでスキップ
+        this.showClearEffect();
+      }
+    } else {
       this.showFailEffect();
       this.add.text(this.game.config.width / 2, this.game.config.height / 2, `${this.gameState.chain.length}/5 完了`, {
         fontSize: '20px',
-        fontFamily: 'Courier New',
+        fontFamily: UI_CONFIG.FONT.family,
         color: '#ffff00'
       }).setOrigin(0.5);
     }

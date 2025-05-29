@@ -13,69 +13,57 @@ class MainMenuScene extends Phaser.Scene {
     const centerX = this.game.config.width / 2;
     const centerY = this.game.config.height / 2;
     
-    this.add.text(centerX, centerY - 80, 'レトロラッシュ', {
+    this.add.text(centerX, centerY - 80, 'RETRO RUSH', {
       fontSize: '36px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00',
       stroke: '#ff00ff',
       strokeThickness: 4
     }).setOrigin(0.5);
     
-    this.add.text(centerX, centerY - 30, 'RETRO RUSH', {
-      fontSize: '24px',
-      fontFamily: 'Courier New',
-      color: '#00ffff'
-    }).setOrigin(0.5);
+    // this.add.text(centerX, centerY - 30, 'RETRO RUSH', {
+    //   fontSize: '24px',
+    //   fontFamily: 'Courier New',
+    //   color: '#00ffff'
+    // }).setOrigin(0.5);
     
     const state = ScoreManager.getGameState();
     this.add.text(centerX, centerY + 30, `HIGH SCORE: ${state.highScore}`, {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     
-    // STARTボタン
+    // STARTテキスト（ファミコン風）
     const buttonY = this.game.config.height * 0.65;
-    const startButton = this.add.rectangle(
-      centerX, 
-      buttonY, 
-      200, 
-      UI_CONFIG.MIN_TAP_SIZE, 
-      0x00ff00
-    );
-    
-    const startText = this.add.text(centerX, buttonY, 'START', {
+    const startText = this.add.text(centerX, buttonY, '▶ START', {
       fontSize: '24px',
-      fontFamily: 'Courier New',
-      color: '#000000'
+      fontFamily: UI_CONFIG.FONT.family,
+      color: '#ffffff',
+      fontStyle: 'bold'
     }).setOrigin(0.5);
     
-    startButton.setInteractive({ useHandCursor: true });
+    startText.setInteractive({ useHandCursor: true });
     
-    // ゲーム選択ボタン
-    const selectButtonY = buttonY + 70;
-    const selectButton = this.add.rectangle(
-      centerX,
-      selectButtonY,
-      200,
-      UI_CONFIG.MIN_TAP_SIZE,
-      0x1e90ff
-    );
+    // 隠しボタン（㊙）
+    const secretButton = this.add.text(
+      this.game.config.width - 40,
+      this.game.config.height - 40,
+      '㊙',
+      {
+        fontSize: '24px',
+        fontFamily: UI_CONFIG.FONT.family,
+        color: '#666666'
+      }
+    ).setOrigin(0.5);
     
-    const selectText = this.add.text(centerX, selectButtonY, 'ゲーム選択', {
-      fontSize: '20px',
-      fontFamily: 'Courier New',
-      color: '#ffffff'
-    }).setOrigin(0.5);
+    secretButton.setInteractive({ useHandCursor: true });
     
-    selectButton.setInteractive({ useHandCursor: true });
-    
-    startButton.on('pointerdown', () => {
+    startText.on('pointerdown', () => {
       // モバイルで音声アンロックを確実に実行
       SoundManager.setScene(this);
       
       HapticManager.tap();
-      RetroEffects.bounceEffect(this, startButton);
       RetroEffects.bounceEffect(this, startText);
       
       this.time.delayedCall(200, () => {
@@ -87,34 +75,33 @@ class MainMenuScene extends Phaser.Scene {
       });
     });
     
-    startButton.on('pointerover', () => {
-      startButton.setFillStyle(0x44ff44);
+    startText.on('pointerover', () => {
+      startText.setColor('#ffff00');
     });
     
-    startButton.on('pointerout', () => {
-      startButton.setFillStyle(0x00ff00);
+    startText.on('pointerout', () => {
+      startText.setColor('#ffffff');
     });
     
-    // ゲーム選択ボタンのイベント
-    selectButton.on('pointerdown', () => {
+    // 隠しボタンのイベント
+    secretButton.on('pointerdown', () => {
       // モバイルで音声アンロックを確実に実行
       SoundManager.setScene(this);
       
       HapticManager.tap();
-      RetroEffects.bounceEffect(this, selectButton);
-      RetroEffects.bounceEffect(this, selectText);
+      RetroEffects.bounceEffect(this, secretButton);
       
       this.time.delayedCall(200, () => {
         this.scene.start('GameSelectScene');
       });
     });
     
-    selectButton.on('pointerover', () => {
-      selectButton.setFillStyle(0x4682b4);
+    secretButton.on('pointerover', () => {
+      secretButton.setColor('#ff00ff');
     });
     
-    selectButton.on('pointerout', () => {
-      selectButton.setFillStyle(0x1e90ff);
+    secretButton.on('pointerout', () => {
+      secretButton.setColor('#666666');
     });
     
     RetroEffects.addFlicker(this);

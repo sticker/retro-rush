@@ -45,19 +45,19 @@ class GameOverScene extends Phaser.Scene {
     
     this.add.text(centerX, centerY - 60, 'NEXT GAME!', {
       fontSize: '28px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#00ff00'
     }).setOrigin(0.5);
     
     this.add.text(centerX, centerY - 10, `TOTAL SCORE: ${state.totalScore}`, {
       fontSize: '18px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     
     this.add.text(centerX, centerY + 20, `GAME: ${state.currentGame}/5`, {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#00ffff'
     }).setOrigin(0.5);
     
@@ -97,7 +97,7 @@ class GameOverScene extends Phaser.Scene {
     if (isNewHighScore) {
       this.add.text(centerX, centerY - 80, 'NEW HIGH SCORE!', {
         fontSize: '24px',
-        fontFamily: 'Courier New',
+        fontFamily: UI_CONFIG.FONT.family,
         color: '#ff00ff'
       }).setOrigin(0.5);
       
@@ -107,63 +107,55 @@ class GameOverScene extends Phaser.Scene {
     
     this.add.text(centerX, centerY - 40, 'ALL GAMES COMPLETE!', {
       fontSize: '24px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#00ff00'
     }).setOrigin(0.5);
     
     this.add.text(centerX, centerY + 10, `FINAL SCORE: ${state.totalScore}`, {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     
     this.add.text(centerX, centerY + 40, `HIGH SCORE: ${state.highScore}`, {
       fontSize: '16px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffff00'
     }).setOrigin(0.5);
     
     // 完了したゲーム数表示
     this.add.text(centerX, centerY + 60, `GAMES COMPLETED: ${state.gamesCompleted}/5`, {
       fontSize: '14px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#00ffff'
     }).setOrigin(0.5);
     
-    // メニューに戻るボタン
+    // REPLAYテキスト（ファミコン風）
     const buttonY = this.game.config.height * 0.8;
-    const menuButton = this.add.rectangle(
-      centerX, 
-      buttonY, 
-      200, 
-      UI_CONFIG.MIN_TAP_SIZE, 
-      0x0088ff
-    );
-    
-    const menuText = this.add.text(centerX, buttonY, 'MENU', {
+    const replayText = this.add.text(centerX, buttonY, '▶ REPLAY', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
-      color: '#ffffff'
+      fontFamily: UI_CONFIG.FONT.family,
+      color: '#ffffff',
+      fontStyle: 'bold'
     }).setOrigin(0.5);
     
-    menuButton.setInteractive({ useHandCursor: true });
+    replayText.setInteractive({ useHandCursor: true });
     
-    menuButton.on('pointerdown', () => {
+    replayText.on('pointerdown', () => {
       HapticManager.tap();
-      RetroEffects.bounceEffect(this, menuButton);
-      RetroEffects.bounceEffect(this, menuText);
+      RetroEffects.bounceEffect(this, replayText);
       
       this.time.delayedCall(200, () => {
         this.scene.start('MainMenuScene');
       });
     });
     
-    menuButton.on('pointerover', () => {
-      menuButton.setFillStyle(0x44aaff);
+    replayText.on('pointerover', () => {
+      replayText.setColor('#ffff00');
     });
     
-    menuButton.on('pointerout', () => {
-      menuButton.setFillStyle(0x0088ff);
+    replayText.on('pointerout', () => {
+      replayText.setColor('#ffffff');
     });
   }
   
@@ -174,13 +166,13 @@ class GameOverScene extends Phaser.Scene {
     
     this.add.text(centerX, centerY - 60, 'GAME OVER', {
       fontSize: '28px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ff6347'
     }).setOrigin(0.5);
     
     this.add.text(centerX, centerY, `SCORE: ${state.totalScore}`, {
       fontSize: '24px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     
@@ -196,7 +188,7 @@ class GameOverScene extends Phaser.Scene {
     
     const retryText = this.add.text(centerX, retryButtonY, 'RETRY', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#000000'
     }).setOrigin(0.5);
     
@@ -233,7 +225,7 @@ class GameOverScene extends Phaser.Scene {
     
     const backText = this.add.text(centerX, backButtonY, 'ゲーム選択', {
       fontSize: '20px',
-      fontFamily: 'Courier New',
+      fontFamily: UI_CONFIG.FONT.family,
       color: '#ffffff'
     }).setOrigin(0.5);
     

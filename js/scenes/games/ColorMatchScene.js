@@ -3,6 +3,7 @@ import ScoreManager from '../../utils/ScoreManager.js';
 import RetroEffects from '../../utils/RetroEffects.js';
 import HapticManager from '../../utils/HapticManager.js';
 import UI_CONFIG from '../../utils/UI_CONFIG.js';
+import SoundManager from '../../utils/SoundManager.js';
 
 class ColorMatchScene extends BaseGameScene {
   constructor() {
@@ -147,6 +148,8 @@ class ColorMatchScene extends BaseGameScene {
       this.score += 200;
       this.scoreText.setText(`SCORE: ${this.score}`);
       
+      // 正解音を再生
+      SoundManager.playCorrect();
       HapticManager.success();
       RetroEffects.createParticles(this, this.colorDisplay.x, this.colorDisplay.y, 'success');
       this.showQuickFeedback('CORRECT!', 0x00ff00, this.colorDisplay.x, this.colorDisplay.y - 60);
@@ -170,6 +173,15 @@ class ColorMatchScene extends BaseGameScene {
     
     ScoreManager.addScore(this.score);
     ScoreManager.completeGame();
+    
+    // クリア判定
+    const isCleared = this.score >= 600;
+    
+    if (isCleared) {
+      this.showClearEffect();
+    } else {
+      this.showFailEffect();
+    }
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
       this.endGameAndTransition();

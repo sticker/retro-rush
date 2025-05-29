@@ -1,3 +1,4 @@
+import PreloadScene from './scenes/PreloadScene.js';
 import MainMenuScene from './scenes/MainMenuScene.js';
 import GameSelectScene from './scenes/GameSelectScene.js';
 import GameOverScene from './scenes/GameOverScene.js';
@@ -20,6 +21,7 @@ const config = {
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
   scene: [
+    PreloadScene,
     MainMenuScene,
     GameSelectScene,
     MoleWhackScene,

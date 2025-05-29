@@ -3,6 +3,7 @@ import ScoreManager from '../../utils/ScoreManager.js';
 import RetroEffects from '../../utils/RetroEffects.js';
 import HapticManager from '../../utils/HapticManager.js';
 import UI_CONFIG from '../../utils/UI_CONFIG.js';
+import SoundManager from '../../utils/SoundManager.js';
 
 class MoleWhackScene extends BaseGameScene {
   constructor() {
@@ -129,6 +130,8 @@ class MoleWhackScene extends BaseGameScene {
     this.score += 100;
     this.scoreText.setText(`SCORE: ${this.score}`);
     
+    // ヒット音を再生
+    SoundManager.playPush();
     HapticManager.success();
     RetroEffects.createParticles(this, mole.x, mole.y, 'success');
     this.showQuickFeedback('+100', 0x00ff00, mole.x, mole.y);
@@ -146,9 +149,21 @@ class MoleWhackScene extends BaseGameScene {
     ScoreManager.addScore(this.score);
     ScoreManager.completeGame();
     
-    this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.endGameAndTransition();
-    });
+    // クリア判定（例: 300点以上でクリア）
+    const isCleared = this.score >= 300;
+    
+    if (isCleared) {
+      // クリア演出
+      this.showClearEffect(() => {
+        this.endGameAndTransition();
+      });
+    } else {
+      // 失敗演出
+      this.showFailEffect();
+      this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
+        this.endGameAndTransition();
+      });
+    }
   }
 }
 

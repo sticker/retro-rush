@@ -3,6 +3,7 @@ import ScoreManager from '../../utils/ScoreManager.js';
 import RetroEffects from '../../utils/RetroEffects.js';
 import HapticManager from '../../utils/HapticManager.js';
 import UI_CONFIG from '../../utils/UI_CONFIG.js';
+import SoundManager from '../../utils/SoundManager.js';
 
 class RhythmJumpScene extends BaseGameScene {
   constructor() {
@@ -163,6 +164,8 @@ class RhythmJumpScene extends BaseGameScene {
     if (!this.isPlaying || this.isJumping) return;
     
     this.isJumping = true;
+    // ジャンプ音を再生
+    SoundManager.playJump();
     HapticManager.tap();
     
     // ジャンプアニメーション（高さと時間を調整）
@@ -227,6 +230,15 @@ class RhythmJumpScene extends BaseGameScene {
     
     ScoreManager.addScore(this.score);
     ScoreManager.completeGame();
+    
+    // クリア判定
+    const isCleared = this.score >= 300;
+    
+    if (isCleared) {
+      this.showClearEffect();
+    } else {
+      this.showFailEffect();
+    }
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
       this.endGameAndTransition();

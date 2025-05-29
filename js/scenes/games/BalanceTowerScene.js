@@ -3,6 +3,7 @@ import ScoreManager from '../../utils/ScoreManager.js';
 import RetroEffects from '../../utils/RetroEffects.js';
 import HapticManager from '../../utils/HapticManager.js';
 import UI_CONFIG from '../../utils/UI_CONFIG.js';
+import SoundManager from '../../utils/SoundManager.js';
 
 class BalanceTowerScene extends BaseGameScene {
   constructor() {
@@ -305,8 +306,11 @@ class BalanceTowerScene extends BaseGameScene {
     ScoreManager.addScore(this.score);
     ScoreManager.completeGame();
     
-    // 結果表示
-    if (success && !this.isFallen) {
+    // クリア判定
+    const isCleared = success && !this.isFallen;
+    
+    if (isCleared) {
+      this.showClearEffect();
       HapticManager.success();
       this.add.text(this.game.config.width / 2, this.game.config.height / 2, 'SUCCESS!', {
         fontSize: '24px',
@@ -314,6 +318,8 @@ class BalanceTowerScene extends BaseGameScene {
         color: '#00ff00'
       }).setOrigin(0.5);
       RetroEffects.createParticles(this, this.game.config.width / 2, this.game.config.height / 2, 'success');
+    } else {
+      this.showFailEffect();
     }
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {

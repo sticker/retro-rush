@@ -3,6 +3,7 @@ import ScoreManager from '../../utils/ScoreManager.js';
 import RetroEffects from '../../utils/RetroEffects.js';
 import HapticManager from '../../utils/HapticManager.js';
 import UI_CONFIG from '../../utils/UI_CONFIG.js';
+import SoundManager from '../../utils/SoundManager.js';
 
 class NumberChainScene extends BaseGameScene {
   constructor() {
@@ -201,6 +202,7 @@ class NumberChainScene extends BaseGameScene {
       this.gameState.currentNumber = expectedNumber + 1;
       
       // エフェクト
+      SoundManager.playCorrect();
       HapticManager.success();
       RetroEffects.createParticles(this, button.x, button.y, 'success');
       this.showQuickFeedback('正解！', 0x00ff00, button.x, button.y - 40);
@@ -322,11 +324,11 @@ class NumberChainScene extends BaseGameScene {
     }).setOrigin(0.5);
     
     this.time.delayedCall(1500, () => {
-      this.endGame();
+      this.endGame(true); // 成功として終了
     });
   }
 
-  endGame() {
+  endGame(fromCompleteChain = false) {
     this.gameState.isPlaying = false;
     
     if (this.gameTimer) this.gameTimer.destroy();
@@ -344,9 +346,14 @@ class NumberChainScene extends BaseGameScene {
     ScoreManager.addScore(this.gameState.score);
     ScoreManager.completeGame();
     
-    // 結果表示
-    const completed = this.gameState.chain.length === 5;
-    if (!completed) {
+    // クリア判定
+    const isCleared = this.gameState.chain.length === 5;
+    
+    if (isCleared && !fromCompleteChain) {
+      // completeChain()から呼ばれた場合は既にエフェクトが表示されているのでスキップ
+      this.showClearEffect();
+    } else if (!isCleared) {
+      this.showFailEffect();
       this.add.text(this.game.config.width / 2, this.game.config.height / 2, `${this.gameState.chain.length}/5 完了`, {
         fontSize: '20px',
         fontFamily: 'Courier New',

@@ -1,6 +1,7 @@
 import UI_CONFIG from '../utils/UI_CONFIG.js';
 import RetroEffects from '../utils/RetroEffects.js';
 import HapticManager from '../utils/HapticManager.js';
+import SoundManager from '../utils/SoundManager.js';
 
 // ベースシーンクラス（共通機能）
 class BaseGameScene extends Phaser.Scene {
@@ -9,10 +10,13 @@ class BaseGameScene extends Phaser.Scene {
     this.tapHandlers = new Map(); // タップハンドラー管理
     this.tapCooldown = 50; // 連続タップのクールダウン（ミリ秒）
     this.singleGameMode = false; // 単一ゲームモードフラグ
+    this.clearEffectShown = false; // クリア演出表示フラグ
   }
   
   init(data) {
     this.singleGameMode = data?.singleGameMode || false;
+    // サウンドマネージャーにシーンを設定
+    SoundManager.setScene(this);
   }
   createThumbZoneUI() {
     const height = this.game.config.height;
@@ -54,6 +58,9 @@ class BaseGameScene extends Phaser.Scene {
     const centerY = this.game.config.height / 2;
     let count = 3;
     
+    // カウントダウン開始時に音楽を再生
+    SoundManager.playGameStart();
+    
     const countdownText = this.add.text(centerX, centerY, count.toString(), {
       fontSize: '48px',
       color: '#ffff00',
@@ -75,6 +82,7 @@ class BaseGameScene extends Phaser.Scene {
           RetroEffects.bounceEffect(this, countdownText);
         } else {
           countdownText.destroy();
+          // コールバックでゲーム開始（音楽は再生しない）
           callback();
         }
       },
@@ -163,6 +171,54 @@ class BaseGameScene extends Phaser.Scene {
   shutdown() {
     this.tapHandlers.clear();
     super.shutdown();
+  }
+  
+  /**
+   * ゲームクリア時の共通処理
+   */
+  showClearEffect(onComplete) {
+    // 既に表示済みの場合は何もしない
+    if (this.clearEffectShown) {
+      if (onComplete) onComplete();
+      return;
+    }
+    
+    // 表示フラグを設定
+    this.clearEffectShown = true;
+    
+    const centerX = this.game.config.width / 2;
+    const centerY = this.game.config.height / 2;
+    
+    // 成功音を再生
+    SoundManager.playSuccess();
+    
+    // 「ナイス!」演出
+    const niceText = this.add.text(centerX, centerY, 'ナイス!', {
+      fontSize: '48px',
+      fontFamily: 'Courier New',
+      color: '#00ff00',
+      stroke: '#ffffff',
+      strokeThickness: 4
+    }).setOrigin(0.5);
+    
+    // エフェクト
+    RetroEffects.bounceEffect(this, niceText);
+    RetroEffects.createParticles(this, centerX, centerY, 'perfect');
+    HapticManager.perfect();
+    
+    // 1秒後に次へ
+    this.time.delayedCall(1000, () => {
+      niceText.destroy();
+      if (onComplete) onComplete();
+    });
+  }
+  
+  /**
+   * ゲーム失敗時の共通処理
+   */
+  showFailEffect() {
+    // 失敗音を再生
+    SoundManager.playFail();
   }
   
   /**

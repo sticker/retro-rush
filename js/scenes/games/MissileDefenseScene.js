@@ -3,6 +3,7 @@ import ScoreManager from '../../utils/ScoreManager.js';
 import RetroEffects from '../../utils/RetroEffects.js';
 import HapticManager from '../../utils/HapticManager.js';
 import UI_CONFIG from '../../utils/UI_CONFIG.js';
+import SoundManager from '../../utils/SoundManager.js';
 
 class MissileDefenseScene extends BaseGameScene {
   constructor() {
@@ -179,6 +180,7 @@ class MissileDefenseScene extends BaseGameScene {
     this.score += 200;
     
     // ミサイル撃墜エフェクト
+    SoundManager.playDestroy();
     HapticManager.success();
     RetroEffects.createParticles(this, missile.x, missile.y, 'success');
     this.showQuickFeedback('撃墜!', 0x00ff00, missile.x, missile.y - 30);
@@ -248,9 +250,18 @@ class MissileDefenseScene extends BaseGameScene {
     ScoreManager.addScore(this.score);
     ScoreManager.completeGame();
     
+    // クリア判定
+    const isCleared = this.missilesDestroyed >= 5;
+    
+    if (isCleared) {
+      this.showClearEffect();
+    } else {
+      this.showFailEffect();
+    }
+    
     // 結果表示
-    const resultText = this.missilesDestroyed >= 5 ? 'PERFECT!' : `${this.missilesDestroyed}/5 撃墜`;
-    const resultColor = this.missilesDestroyed >= 5 ? 0x00ff00 : 0xffff00;
+    const resultText = isCleared ? 'PERFECT!' : `${this.missilesDestroyed}/5 撃墜`;
+    const resultColor = isCleared ? 0x00ff00 : 0xffff00;
     
     this.add.text(this.game.config.width / 2, this.game.config.height / 2, resultText, {
       fontSize: '24px',

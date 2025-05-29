@@ -2,6 +2,7 @@ import ScoreManager from '../utils/ScoreManager.js';
 import RetroEffects from '../utils/RetroEffects.js';
 import HapticManager from '../utils/HapticManager.js';
 import UI_CONFIG from '../utils/UI_CONFIG.js';
+import SoundManager from '../utils/SoundManager.js';
 
 class GameOverScene extends Phaser.Scene {
   constructor() {
@@ -39,6 +40,8 @@ class GameOverScene extends Phaser.Scene {
     const centerX = this.game.config.width / 2;
     const centerY = this.game.config.height / 2;
     const state = ScoreManager.getGameState();
+    
+    // 次のゲームへの遷移音を削除（カウントダウン時に再生するため）
     
     this.add.text(centerX, centerY - 60, 'NEXT GAME!', {
       fontSize: '28px',

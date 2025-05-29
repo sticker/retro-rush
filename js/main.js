@@ -8,6 +8,9 @@ import ColorMatchScene from './scenes/games/ColorMatchScene.js';
 import MissileDefenseScene from './scenes/games/MissileDefenseScene.js';
 import BalanceTowerScene from './scenes/games/BalanceTowerScene.js';
 import NumberChainScene from './scenes/games/NumberChainScene.js';
+import SpaceDebrisScene from './scenes/games/SpaceDebrisScene.js';
+import ClockStopScene from './scenes/games/ClockStopScene.js';
+import ShapeSortScene from './scenes/games/ShapeSortScene.js';
 
 // Phaserゲーム設定
 const config = {
@@ -34,6 +37,9 @@ const config = {
     MissileDefenseScene,
     BalanceTowerScene,
     NumberChainScene,
+    SpaceDebrisScene,
+    ClockStopScene,
+    ShapeSortScene,
     GameOverScene
   ]
 };

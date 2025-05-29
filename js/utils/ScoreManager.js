@@ -30,7 +30,10 @@ class ScoreManager {
       'ColorMatchScene',
       'MissileDefenseScene',
       'BalanceTowerScene',
-      'NumberChainScene'
+      'NumberChainScene',
+      'SpaceDebrisScene',
+      'ClockStopScene',
+      'ShapeSortScene',
     ];
     
     // 6つのゲームから5つをランダムに選択

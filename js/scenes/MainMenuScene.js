@@ -70,7 +70,8 @@ class MainMenuScene extends Phaser.Scene {
         ScoreManager.resetGameState();
         const firstGame = ScoreManager.getCurrentGameScene();
         if (firstGame) {
-          this.scene.start(firstGame);
+          // 通常モードであることを明示的に指定
+          this.scene.start(firstGame, { singleGameMode: false });
         }
       });
     });

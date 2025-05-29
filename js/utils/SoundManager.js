@@ -37,7 +37,7 @@ class SoundManager {
     if (!this.scene) return;
     
     // Phaserのサウンドキーを取得
-    const soundKeys = ['nextGame', 'success', 'fail', 'push', 'jump', 'correct', 'destroy'];
+    const soundKeys = ['nextGame', 'success', 'fail', 'push', 'jump', 'correct', 'destroy', 'beep'];
     
     // Phaserのサウンドオブジェクトを取得
     soundKeys.forEach(key => {
@@ -177,6 +177,10 @@ class SoundManager {
   
   static playDestroy() {
     SoundManager.play('destroy');
+  }
+  
+  static playBeep() {
+    SoundManager.play('beep');
   }
 }
 

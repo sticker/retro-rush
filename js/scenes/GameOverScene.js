@@ -10,8 +10,19 @@ class GameOverScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.singleGameMode = data?.singleGameMode || false;
-    this.gameKey = data?.gameKey || null;
+    // 明示的にリセットしてから設定
+    this.singleGameMode = false;
+    this.gameKey = null;
+    
+    // dataが渡された場合のみ設定を変更
+    if (data) {
+      if (data.singleGameMode === true) {
+        this.singleGameMode = true;
+      }
+      if (data.gameKey) {
+        this.gameKey = data.gameKey;
+      }
+    }
   }
   
   create() {
@@ -253,7 +264,8 @@ class GameOverScene extends Phaser.Scene {
   startNextGame() {
     const nextGame = ScoreManager.getCurrentGameScene();
     if (nextGame) {
-      this.scene.start(nextGame);
+      // 通常モードを維持して次のゲームへ
+      this.scene.start(nextGame, { singleGameMode: false });
     } else {
       // すべてのゲームが完了した場合はメニューに戻る
       this.scene.start('MainMenuScene');

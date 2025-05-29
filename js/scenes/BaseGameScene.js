@@ -14,7 +14,13 @@ class BaseGameScene extends Phaser.Scene {
   }
   
   init(data) {
-    this.singleGameMode = data?.singleGameMode || false;
+    // dataが明示的に渡されていて、singleGameModeがtrueの場合のみ単一モード
+    // それ以外はすべて通常モード（false）
+    if (data && data.singleGameMode === true) {
+      this.singleGameMode = true;
+    } else {
+      this.singleGameMode = false;
+    }
     // サウンドマネージャーにシーンを設定
     SoundManager.setScene(this);
   }
@@ -166,6 +172,76 @@ class BaseGameScene extends Phaser.Scene {
   }
   
   /**
+   * スワイプ操作のヘルパー関数
+   * PCではドラッグ、スマホではスワイプで動作
+   */
+  addSwipeHandler(options = {}) {
+    const {
+      onSwipeStart = null,
+      onSwipeMove = null,
+      onSwipeEnd = null,
+      threshold = 10  // スワイプと判定する最小移動距離
+    } = options;
+    
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let currentY = 0;
+    
+    // スワイプ開始
+    this.input.on('pointerdown', (pointer) => {
+      isDragging = true;
+      startX = pointer.x;
+      startY = pointer.y;
+      currentX = pointer.x;
+      currentY = pointer.y;
+      
+      if (onSwipeStart) {
+        onSwipeStart.call(this, pointer.x, pointer.y);
+      }
+    });
+    
+    // スワイプ中
+    this.input.on('pointermove', (pointer) => {
+      if (!isDragging) return;
+      
+      const deltaX = pointer.x - currentX;
+      const deltaY = pointer.y - currentY;
+      const totalDeltaX = pointer.x - startX;
+      const totalDeltaY = pointer.y - startY;
+      
+      // 最小移動距離をチェック
+      if (Math.abs(totalDeltaX) > threshold || Math.abs(totalDeltaY) > threshold) {
+        if (onSwipeMove) {
+          onSwipeMove.call(this, pointer.x, pointer.y, deltaX, deltaY, totalDeltaX, totalDeltaY);
+        }
+      }
+      
+      currentX = pointer.x;
+      currentY = pointer.y;
+    });
+    
+    // スワイプ終了
+    this.input.on('pointerup', (pointer) => {
+      if (!isDragging) return;
+      
+      isDragging = false;
+      const totalDeltaX = pointer.x - startX;
+      const totalDeltaY = pointer.y - startY;
+      
+      if (onSwipeEnd) {
+        onSwipeEnd.call(this, pointer.x, pointer.y, totalDeltaX, totalDeltaY);
+      }
+    });
+    
+    // タッチキャンセル時の処理
+    this.input.on('pointercancel', () => {
+      isDragging = false;
+    });
+  }
+  
+  /**
    * シーン破棄時のクリーンアップ
    */
   shutdown() {
@@ -233,7 +309,10 @@ class BaseGameScene extends Phaser.Scene {
       });
     } else {
       // 通常モードの場合
-      this.scene.start('GameOverScene');
+      this.scene.start('GameOverScene', {
+        singleGameMode: false,
+        gameKey: null
+      });
     }
   }
 }

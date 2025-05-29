@@ -83,11 +83,15 @@ class ColorMatchScene extends BaseGameScene {
       
       button.colorData = this.colors[i];
       
-      button.on('pointerdown', () => {
+      // より寛容な連続タップ対応
+      const handleColorClick = () => {
         if (this.isPlaying) {
           this.checkColor(button.colorData);
         }
-      });
+      };
+      
+      button.on('pointerdown', handleColorClick);
+      button.on('pointerup', handleColorClick);
       
       button.on('pointerover', () => {
         button.setScale(1.1);
@@ -159,7 +163,7 @@ class ColorMatchScene extends BaseGameScene {
       RetroEffects.createParticles(this, this.colorDisplay.x, this.colorDisplay.y, 'fail');
       this.showQuickFeedback('WRONG!', 0xff0000, this.colorDisplay.x, this.colorDisplay.y - 60);
       
-      ScoreManager.loseLife();
+      // ライフ概念を削除
     }
   }
 

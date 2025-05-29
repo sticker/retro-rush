@@ -9,28 +9,27 @@ class GameOverScene extends Phaser.Scene {
   }
 
   create() {
-    const centerX = this.game.config.width / 2;
-    const centerY = this.game.config.height / 2;
     const state = ScoreManager.getGameState();
     
-    // ゲーム継続判定
-    const hasMoreGames = state.gamesCompleted < 3 && state.lives > 0;
+    // 次のゲームがあるかチェック
+    ScoreManager.incrementGame();
+    const hasMoreGames = ScoreManager.hasMoreGames();
     
     if (hasMoreGames) {
       // 次のゲームへ
-      this.showGameResult();
+      this.showGameTransition();
     } else {
-      // 最終結果
+      // 最終結果（5ゲーム完了）
       this.showFinalResult();
     }
   }
 
-  showGameResult() {
+  showGameTransition() {
     const centerX = this.game.config.width / 2;
     const centerY = this.game.config.height / 2;
     const state = ScoreManager.getGameState();
     
-    this.add.text(centerX, centerY - 60, 'GAME CLEAR!', {
+    this.add.text(centerX, centerY - 60, 'NEXT GAME!', {
       fontSize: '28px',
       fontFamily: 'Courier New',
       color: '#00ff00'
@@ -42,20 +41,29 @@ class GameOverScene extends Phaser.Scene {
       color: '#ffffff'
     }).setOrigin(0.5);
     
-    this.add.text(centerX, centerY + 20, `LIVES: ${state.lives}`, {
-      fontSize: '16px',
-      fontFamily: 'Courier New',
-      color: '#ffff00'
-    }).setOrigin(0.5);
-    
-    this.add.text(centerX, centerY + 50, `GAMES: ${state.gamesCompleted}/3`, {
+    this.add.text(centerX, centerY + 20, `GAME: ${state.currentGame}/5`, {
       fontSize: '16px',
       fontFamily: 'Courier New',
       color: '#00ffff'
     }).setOrigin(0.5);
     
+    // 進行度バー
+    const progressBarWidth = 200;
+    const progressBg = this.add.rectangle(centerX, centerY + 50, progressBarWidth, 10, 0x333333);
+    progressBg.setStrokeStyle(1, 0x666666);
+    
+    const progress = (state.currentGame - 1) / 5;
+    const progressBar = this.add.rectangle(
+      centerX - progressBarWidth / 2 + (progressBarWidth * progress / 2), 
+      centerY + 50, 
+      progressBarWidth * progress, 
+      8, 
+      0x00ff00
+    );
+    progressBar.setOrigin(0, 0.5);
+    
     // 自動で次のゲームへ
-    this.time.delayedCall(2000, () => {
+    this.time.delayedCall(1500, () => {
       this.startNextGame();
     });
     
@@ -83,10 +91,10 @@ class GameOverScene extends Phaser.Scene {
       RetroEffects.createParticles(this, centerX, centerY - 80, 'perfect');
     }
     
-    this.add.text(centerX, centerY - 40, 'GAME OVER', {
-      fontSize: '32px',
+    this.add.text(centerX, centerY - 40, 'ALL GAMES COMPLETE!', {
+      fontSize: '24px',
       fontFamily: 'Courier New',
-      color: state.lives > 0 ? '#00ff00' : '#ff0000'
+      color: '#00ff00'
     }).setOrigin(0.5);
     
     this.add.text(centerX, centerY + 10, `FINAL SCORE: ${state.totalScore}`, {
@@ -99,6 +107,13 @@ class GameOverScene extends Phaser.Scene {
       fontSize: '16px',
       fontFamily: 'Courier New',
       color: '#ffff00'
+    }).setOrigin(0.5);
+    
+    // 完了したゲーム数表示
+    this.add.text(centerX, centerY + 60, `GAMES COMPLETED: ${state.gamesCompleted}/5`, {
+      fontSize: '14px',
+      fontFamily: 'Courier New',
+      color: '#00ffff'
     }).setOrigin(0.5);
     
     // メニューに戻るボタン
@@ -139,14 +154,13 @@ class GameOverScene extends Phaser.Scene {
   }
 
   startNextGame() {
-    const state = ScoreManager.getGameState();
-    ScoreManager.incrementGame();
-    
-    // 次のゲームを決定
-    const gameScenes = ['MoleWhackScene', 'RhythmJumpScene', 'ColorMatchScene'];
-    const nextScene = gameScenes[state.currentGame % 3];
-    
-    this.scene.start(nextScene);
+    const nextGame = ScoreManager.getCurrentGameScene();
+    if (nextGame) {
+      this.scene.start(nextGame);
+    } else {
+      // すべてのゲームが完了した場合はメニューに戻る
+      this.scene.start('MainMenuScene');
+    }
   }
 }
 

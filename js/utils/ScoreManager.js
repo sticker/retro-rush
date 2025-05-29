@@ -6,7 +6,7 @@ class ScoreManager {
         totalScore: 0,
         currentGame: 0,
         gamesCompleted: 0,
-        lives: 3,
+        gameSequence: [],
         highScore: localStorage.getItem('retroRushHighScore') || 0
       };
     }
@@ -18,7 +18,42 @@ class ScoreManager {
     state.totalScore = 0;
     state.currentGame = 0;
     state.gamesCompleted = 0;
-    state.lives = 3;
+    state.gameSequence = this.generateGameSequence();
+  }
+
+  static generateGameSequence() {
+    const allGames = [
+      'MoleWhackScene',
+      'RhythmJumpScene', 
+      'ColorMatchScene',
+      'MissileDefenseScene',
+      'BalanceTowerScene',
+      'NumberChainScene'
+    ];
+    
+    // 6つのゲームから5つをランダムに選択
+    const sequence = [];
+    const availableGames = [...allGames];
+    
+    for (let i = 0; i < 5; i++) {
+      const randomIndex = Math.floor(Math.random() * availableGames.length);
+      sequence.push(availableGames.splice(randomIndex, 1)[0]);
+    }
+    
+    return sequence;
+  }
+
+  static getCurrentGameScene() {
+    const state = this.getGameState();
+    if (state.currentGame < state.gameSequence.length) {
+      return state.gameSequence[state.currentGame];
+    }
+    return null;
+  }
+
+  static hasMoreGames() {
+    const state = this.getGameState();
+    return state.currentGame < state.gameSequence.length;
   }
 
   static addScore(points) {
@@ -26,10 +61,7 @@ class ScoreManager {
     state.totalScore += points;
   }
 
-  static loseLife() {
-    const state = this.getGameState();
-    state.lives--;
-  }
+  // ライフ概念を削除（連続プレイなので不要）
 
   static incrementGame() {
     const state = this.getGameState();

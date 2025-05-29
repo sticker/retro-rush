@@ -3,6 +3,9 @@ import GameOverScene from './scenes/GameOverScene.js';
 import MoleWhackScene from './scenes/games/MoleWhackScene.js';
 import RhythmJumpScene from './scenes/games/RhythmJumpScene.js';
 import ColorMatchScene from './scenes/games/ColorMatchScene.js';
+import MissileDefenseScene from './scenes/games/MissileDefenseScene.js';
+import BalanceTowerScene from './scenes/games/BalanceTowerScene.js';
+import NumberChainScene from './scenes/games/NumberChainScene.js';
 
 // Phaserゲーム設定
 const config = {
@@ -20,6 +23,9 @@ const config = {
     MoleWhackScene,
     RhythmJumpScene,
     ColorMatchScene,
+    MissileDefenseScene,
+    BalanceTowerScene,
+    NumberChainScene,
     GameOverScene
   ]
 };

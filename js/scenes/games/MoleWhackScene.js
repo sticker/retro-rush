@@ -64,11 +64,15 @@ class MoleWhackScene extends BaseGameScene {
         mole.setInteractive({ useHandCursor: true });
         mole.setVisible(false);
         
-        mole.on('pointerdown', () => {
+        // より寛容な連続タップ対応
+        const handleMoleClick = () => {
           if (this.isPlaying && mole.visible) {
             this.hitMole(mole);
           }
-        });
+        };
+        
+        mole.on('pointerdown', handleMoleClick);
+        mole.on('pointerup', handleMoleClick);
         
         this.moles.push(mole);
       }
@@ -115,13 +119,19 @@ class MoleWhackScene extends BaseGameScene {
       this.time.delayedCall(1000, () => {
         if (mole.visible) {
           mole.setVisible(false);
+          mole.setInteractive({ useHandCursor: true }); // インタラクティブを再有効化
         }
       });
     }
   }
 
   hitMole(mole) {
+    // 重複ヒットを防ぐ
+    if (!mole.visible) return;
+    
     mole.setVisible(false);
+    mole.disableInteractive(); // インタラクティブを無効化
+    
     this.score += 100;
     this.scoreText.setText(`SCORE: ${this.score}`);
     

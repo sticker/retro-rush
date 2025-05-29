@@ -57,8 +57,10 @@ class MainMenuScene extends Phaser.Scene {
       
       this.time.delayedCall(200, () => {
         ScoreManager.resetGameState();
-        ScoreManager.incrementGame();
-        this.scene.start('MoleWhackScene');
+        const firstGame = ScoreManager.getCurrentGameScene();
+        if (firstGame) {
+          this.scene.start(firstGame);
+        }
       });
     });
     

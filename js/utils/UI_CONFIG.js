@@ -11,8 +11,8 @@ const UI_CONFIG = {
   TAP_PADDING: 8,
   // 画面端の無効エリア
   DEAD_ZONE: 16,
-  // 連続タップ防止時間
-  TAP_COOLDOWN: 100,
+  // 連続タップ防止時間（短縮してレスポンシブに）
+  TAP_COOLDOWN: 50,
   // 高速画面遷移
   TRANSITION: {
     showResult: 500,

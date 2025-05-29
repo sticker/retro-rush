@@ -74,7 +74,11 @@ class RhythmJumpScene extends BaseGameScene {
     }).setOrigin(0.5);
     
     this.jumpButton.setInteractive({ useHandCursor: true });
-    this.jumpButton.on('pointerdown', () => this.jump());
+    
+    // より寛容な連続タップ対応
+    const handleJump = () => this.jump();
+    this.jumpButton.on('pointerdown', handleJump);
+    this.jumpButton.on('pointerup', handleJump);
   }
 
   startGame() {
@@ -203,7 +207,7 @@ class RhythmJumpScene extends BaseGameScene {
       this.obstacles.splice(index, 1);
     }
     
-    ScoreManager.loseLife();
+    // ライフ概念を削除
     this.showQuickFeedback('HIT!', 0xff0000, this.player.x, this.player.y - 30);
   }
 

@@ -1,8 +1,9 @@
 {
-  "enableAllProjectMcpServers": false,
   "permissions": {
     "allow": [
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(mkdir:*)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": false
 }

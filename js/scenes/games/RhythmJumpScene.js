@@ -1,0 +1,230 @@
+import BaseGameScene from '../BaseGameScene.js';
+import ScoreManager from '../../utils/ScoreManager.js';
+import RetroEffects from '../../utils/RetroEffects.js';
+import HapticManager from '../../utils/HapticManager.js';
+import UI_CONFIG from '../../utils/UI_CONFIG.js';
+
+class RhythmJumpScene extends BaseGameScene {
+  constructor() {
+    super({ key: 'RhythmJumpScene' });
+  }
+
+  create() {
+    this.score = 0;
+    this.timeLeft = 8; // 8秒間のゲーム
+    this.obstacles = [];
+    this.isPlaying = false;
+    this.isJumping = false;
+    this.beatInterval = 800; // ビート間隔
+    
+    this.createUI();
+    this.createPlayer();
+    this.createJumpButton();
+    this.createThumbZoneUI();
+    
+    this.createCountdown(() => {
+      this.startGame();
+    });
+  }
+
+  createUI() {
+    const centerX = this.game.config.width / 2;
+    
+    this.add.text(centerX, 30, 'リズムジャンプ', {
+      fontSize: '24px',
+      fontFamily: 'Courier New',
+      color: '#ffff00'
+    }).setOrigin(0.5);
+    
+    this.scoreText = this.add.text(50, 80, 'SCORE: 0', {
+      fontSize: '18px',
+      fontFamily: 'Courier New',
+      color: '#ffffff'
+    });
+    
+    this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 8', {
+      fontSize: '18px',
+      fontFamily: 'Courier New',
+      color: '#ffffff'
+    }).setOrigin(1, 0);
+  }
+
+  createPlayer() {
+    const groundY = this.game.config.height * 0.7;
+    this.player = this.add.circle(100, groundY, 20, 0x00ff00);
+    this.playerGroundY = groundY;
+  }
+
+  createJumpButton() {
+    const buttonY = this.game.config.height * 0.85;
+    const centerX = this.game.config.width / 2;
+    
+    this.jumpButton = this.add.rectangle(
+      centerX, 
+      buttonY, 
+      200, 
+      UI_CONFIG.MIN_TAP_SIZE, 
+      0x0088ff
+    );
+    
+    this.add.text(centerX, buttonY, 'JUMP', {
+      fontSize: '20px',
+      fontFamily: 'Courier New',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+    
+    this.jumpButton.setInteractive({ useHandCursor: true });
+    this.jumpButton.on('pointerdown', () => this.jump());
+  }
+
+  startGame() {
+    this.isPlaying = true;
+    this.score = 0;
+    this.timeLeft = 8;
+    
+    // タイマー開始
+    this.gameTimer = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.timeLeft--;
+        this.timeText.setText(`TIME: ${this.timeLeft}`);
+        
+        if (this.timeLeft <= 0) {
+          this.endGame();
+        }
+      },
+      repeat: 7
+    });
+    
+    // リズムビート開始
+    this.beatTimer = this.time.addEvent({
+      delay: this.beatInterval,
+      callback: () => this.createBeat(),
+      loop: true
+    });
+    
+    // 障害物生成開始
+    this.obstacleTimer = this.time.addEvent({
+      delay: 1600, // ビートの2倍間隔
+      callback: () => this.createObstacle(),
+      loop: true
+    });
+  }
+
+  createBeat() {
+    if (!this.isPlaying) return;
+    
+    // ビートインジケーター表示
+    const beat = this.add.circle(50, 50, 15, 0xff00ff);
+    RetroEffects.bounceEffect(this, beat);
+    
+    this.time.delayedCall(200, () => {
+      if (beat) beat.destroy();
+    });
+  }
+
+  createObstacle() {
+    if (!this.isPlaying) return;
+    
+    const obstacle = this.add.rectangle(
+      this.game.config.width + 20,
+      this.playerGroundY,
+      30,
+      40,
+      0xff0000
+    );
+    
+    this.obstacles.push(obstacle);
+    
+    // 障害物移動
+    this.tweens.add({
+      targets: obstacle,
+      x: -50,
+      duration: 3000,
+      ease: 'Linear',
+      onComplete: () => {
+        obstacle.destroy();
+        const index = this.obstacles.indexOf(obstacle);
+        if (index > -1) {
+          this.obstacles.splice(index, 1);
+        }
+      }
+    });
+  }
+
+  jump() {
+    if (!this.isPlaying || this.isJumping) return;
+    
+    this.isJumping = true;
+    HapticManager.tap();
+    
+    // ジャンプアニメーション
+    this.tweens.add({
+      targets: this.player,
+      y: this.playerGroundY - 60,
+      duration: 300,
+      ease: 'Cubic.easeOut',
+      yoyo: true,
+      onComplete: () => {
+        this.isJumping = false;
+      }
+    });
+    
+    // スコア加算（リズムに合わせたボーナス）
+    this.score += 50;
+    this.scoreText.setText(`SCORE: ${this.score}`);
+  }
+
+  update() {
+    if (!this.isPlaying) return;
+    
+    // 衝突判定
+    this.obstacles.forEach(obstacle => {
+      if (!obstacle.active) return;
+      
+      const playerBounds = this.player.getBounds();
+      const obstacleBounds = obstacle.getBounds();
+      
+      if (Phaser.Geom.Rectangle.Overlaps(playerBounds, obstacleBounds)) {
+        if (!this.isJumping) {
+          this.hitObstacle(obstacle);
+        }
+      }
+    });
+  }
+
+  hitObstacle(obstacle) {
+    HapticManager.fail();
+    RetroEffects.createParticles(this, obstacle.x, obstacle.y, 'fail');
+    
+    obstacle.destroy();
+    const index = this.obstacles.indexOf(obstacle);
+    if (index > -1) {
+      this.obstacles.splice(index, 1);
+    }
+    
+    ScoreManager.loseLife();
+    this.showQuickFeedback('HIT!', 0xff0000, this.player.x, this.player.y - 30);
+  }
+
+  endGame() {
+    this.isPlaying = false;
+    
+    if (this.gameTimer) this.gameTimer.destroy();
+    if (this.beatTimer) this.beatTimer.destroy();
+    if (this.obstacleTimer) this.obstacleTimer.destroy();
+    
+    // 残った障害物を削除
+    this.obstacles.forEach(obstacle => obstacle.destroy());
+    this.obstacles = [];
+    
+    ScoreManager.addScore(this.score);
+    ScoreManager.completeGame();
+    
+    this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
+      this.scene.start('GameOverScene');
+    });
+  }
+}
+
+export default RhythmJumpScene;

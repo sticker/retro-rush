@@ -11,7 +11,7 @@ class SoundManager {
     }
     
     this.sounds = {};
-    this.volume = 0.6; // デフォルト音量を下げる
+    this.volume = 0.3; // デフォルト音量を下げる
     this.muted = false;
     this.scene = null;
     this.audioUnlocked = false; // モバイル音声ロック解除フラグ
@@ -42,7 +42,7 @@ class SoundManager {
     // Phaserのサウンドオブジェクトを取得
     soundKeys.forEach(key => {
       if (this.scene.cache.audio.exists(key)) {
-        this.sounds[key] = this.scene.sound.add(key, { volume: 0.3 });
+        this.sounds[key] = this.scene.sound.add(key, { volume: 0.2 });
       } else {
         console.warn(`Sound ${key} not loaded`);
         // フォールバック

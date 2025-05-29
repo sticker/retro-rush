@@ -11,7 +11,7 @@ class PreloadScene extends Phaser.Scene {
     const centerY = this.game.config.height / 2;
     
     // ローディング画面
-    this.add.text(centerX, centerY - 50, 'レトロラッシュ', {
+    this.add.text(centerX, centerY - 50, 'RETRO RUSH', {
       fontSize: '32px',
       fontFamily: 'Courier New',
       color: '#ffff00'

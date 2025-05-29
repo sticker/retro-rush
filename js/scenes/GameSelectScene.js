@@ -2,6 +2,7 @@ import BaseGameScene from './BaseGameScene.js';
 import UI_CONFIG from '../utils/UI_CONFIG.js';
 import RetroEffects from '../utils/RetroEffects.js';
 import HapticManager from '../utils/HapticManager.js';
+import SoundManager from '../utils/SoundManager.js';
 
 class GameSelectScene extends Phaser.Scene {
   constructor() {
@@ -72,6 +73,9 @@ class GameSelectScene extends Phaser.Scene {
       
       // タップイベント
       button.on('pointerdown', () => {
+        // モバイルで音声アンロックを確実に実行
+        SoundManager.setScene(this);
+        
         HapticManager.tap();
         RetroEffects.bounceEffect(this, button);
         RetroEffects.bounceEffect(this, text);

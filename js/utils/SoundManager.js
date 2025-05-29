@@ -14,6 +14,7 @@ class SoundManager {
     this.volume = 0.6; // デフォルト音量を下げる
     this.muted = false;
     this.scene = null;
+    this.audioUnlocked = false; // モバイル音声ロック解除フラグ
     
     SoundManager.instance = this;
   }
@@ -50,6 +51,46 @@ class SoundManager {
         };
       }
     });
+    
+    // モバイル対応: 音声コンテキストのロック解除を設定
+    this.setupMobileAudioUnlock();
+  }
+  
+  /**
+   * モバイル端末の音声ロック解除を設定
+   */
+  setupMobileAudioUnlock() {
+    if (this.audioUnlocked || !this.scene) return;
+    
+    // ユーザーインタラクションで音声コンテキストをアンロック
+    const unlockAudio = () => {
+      if (this.audioUnlocked) return;
+      
+      try {
+        // Phaserのサウンドシステムをアンロック
+        this.scene.sound.unlock();
+        this.audioUnlocked = true;
+        
+        // モバイルブラウザのために無音のサウンドを再生してコンテキストを有効化
+        const silentSound = this.scene.sound.add('nextGame', { volume: 0 });
+        silentSound.play();
+        silentSound.stop();
+        
+        console.log('Audio unlocked for mobile');
+        
+        // イベントリスナーを削除
+        this.scene.input.off('pointerdown', unlockAudio);
+        document.removeEventListener('touchstart', unlockAudio);
+        document.removeEventListener('click', unlockAudio);
+      } catch (error) {
+        console.warn('Failed to unlock audio:', error);
+      }
+    };
+    
+    // 様々なインタラクションでアンロックを試行
+    this.scene.input.once('pointerdown', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('click', unlockAudio, { once: true });
   }
   
   /**
@@ -59,6 +100,16 @@ class SoundManager {
     const instance = new SoundManager();
     
     if (instance.muted || !instance.sounds[soundKey]) {
+      return;
+    }
+    
+    // モバイルで音声がアンロックされていない場合
+    if (!instance.audioUnlocked && instance.scene) {
+      instance.setupMobileAudioUnlock();
+      // アンロックされるまで再生を延期
+      instance.scene.time.delayedCall(100, () => {
+        SoundManager.play(soundKey, config);
+      });
       return;
     }
     

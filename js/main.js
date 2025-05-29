@@ -20,6 +20,10 @@ const config = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
+  audio: {
+    disableWebAudio: false, // WebAudioを有効に
+    noAudio: false // 音声を有効に
+  },
   scene: [
     PreloadScene,
     MainMenuScene,
@@ -36,3 +40,29 @@ const config = {
 
 // ゲーム開始
 const game = new Phaser.Game(config);
+
+// モバイル端末での音声コンテキストアンロック
+// ユーザーインタラクションで音声を有効化
+const enableAudio = () => {
+  try {
+    if (game.sound && game.sound.locked) {
+      game.sound.unlock();
+    }
+    // モバイルブラウザのためのAudioContextアンロック
+    if (window.AudioContext || window.webkitAudioContext) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioContext = new AudioContext();
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+  } catch (error) {
+    console.warn('Audio unlock failed:', error);
+  }
+};
+
+// 様々なイベントで音声アンロックを試行
+document.addEventListener('touchstart', enableAudio, { once: true });
+document.addEventListener('touchend', enableAudio, { once: true });
+document.addEventListener('click', enableAudio, { once: true });
+document.addEventListener('keydown', enableAudio, { once: true });

@@ -2,6 +2,7 @@ import ScoreManager from '../utils/ScoreManager.js';
 import RetroEffects from '../utils/RetroEffects.js';
 import HapticManager from '../utils/HapticManager.js';
 import UI_CONFIG from '../utils/UI_CONFIG.js';
+import SoundManager from '../utils/SoundManager.js';
 
 class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -70,6 +71,9 @@ class MainMenuScene extends Phaser.Scene {
     selectButton.setInteractive({ useHandCursor: true });
     
     startButton.on('pointerdown', () => {
+      // モバイルで音声アンロックを確実に実行
+      SoundManager.setScene(this);
+      
       HapticManager.tap();
       RetroEffects.bounceEffect(this, startButton);
       RetroEffects.bounceEffect(this, startText);
@@ -93,6 +97,9 @@ class MainMenuScene extends Phaser.Scene {
     
     // ゲーム選択ボタンのイベント
     selectButton.on('pointerdown', () => {
+      // モバイルで音声アンロックを確実に実行
+      SoundManager.setScene(this);
+      
       HapticManager.tap();
       RetroEffects.bounceEffect(this, selectButton);
       RetroEffects.bounceEffect(this, selectText);

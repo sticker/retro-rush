@@ -76,7 +76,7 @@ class RhythmJumpScene extends BaseGameScene {
     // 共通タップ判定システムを使用
     this.addTapHandler(this.jumpButton, () => {
       this.jump();
-    }, { cooldown: 50 });
+    }, { cooldown: 30 });
   }
 
   startGame() {
@@ -136,7 +136,7 @@ class RhythmJumpScene extends BaseGameScene {
     const obstacle = this.add.rectangle(
       this.game.config.width + 10,
       this.playerGroundY,
-      30,
+      10,
       40,
       0xff0000
     );
@@ -146,7 +146,7 @@ class RhythmJumpScene extends BaseGameScene {
     // 障害物移動（少し遅く）
     this.tweens.add({
       targets: obstacle,
-      x: -230,
+      x: -250,
       duration: 3500,
       ease: 'Linear',
       onComplete: () => {
@@ -168,8 +168,8 @@ class RhythmJumpScene extends BaseGameScene {
     // ジャンプアニメーション（高さと時間を調整）
     this.tweens.add({
       targets: this.player,
-      y: this.playerGroundY - 50, // より高く
-      duration: 300, // やや長め
+      y: this.playerGroundY - 80, // より高く
+      duration: 200, // やや長め
       ease: 'Cubic.easeOut',
       yoyo: true,
       onComplete: () => {

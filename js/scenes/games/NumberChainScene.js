@@ -10,17 +10,24 @@ class NumberChainScene extends BaseGameScene {
   }
 
   create() {
-    this.score = 0;
-    this.timeLeft = 8; // 8秒間のゲーム
-    this.currentNumber = 1;
+    // ゲーム状態を一元管理（最初から正しい値を設定）
+    this.gameState = {
+      score: 0,
+      timeLeft: 8,
+      currentNumber: 1,
+      chain: [],
+      isPlaying: false
+    };
+    
     this.numberButtons = [];
-    this.isPlaying = false;
-    this.chain = [];
     this.chainLines = [];
     
     this.createUI();
     this.createNumbers();
     this.createThumbZoneUI();
+    
+    // UIを最初に更新
+    this.updateUI();
     
     this.createCountdown(() => {
       this.startGame();
@@ -99,7 +106,7 @@ class NumberChainScene extends BaseGameScene {
       
       // 共通タップ判定システムを使用
       this.addTapHandler(button, (obj) => {
-        if (this.isPlaying && !obj.isClicked) {
+        if (this.gameState.isPlaying && !obj.isClicked) {
           this.clickNumber(obj);
         }
       }, { cooldown: 50 });
@@ -158,22 +165,17 @@ class NumberChainScene extends BaseGameScene {
   }
 
   startGame() {
-    this.isPlaying = true;
-    this.score = 0;
-    this.timeLeft = 8;
-    this.currentNumber = 1;
-    this.chain = [];
-    
-    this.updateUI();
+    // isPlayingだけをtrueに変更（他の状態はリセットしない）
+    this.gameState.isPlaying = true;
     
     // タイマー開始
     this.gameTimer = this.time.addEvent({
       delay: 1000,
       callback: () => {
-        this.timeLeft--;
-        this.timeText.setText(`TIME: ${this.timeLeft}`);
+        this.gameState.timeLeft--;
+        this.timeText.setText(`TIME: ${this.gameState.timeLeft}`);
         
-        if (this.timeLeft <= 0) {
+        if (this.gameState.timeLeft <= 0) {
           this.endGame();
         }
       },
@@ -183,16 +185,20 @@ class NumberChainScene extends BaseGameScene {
 
   clickNumber(button) {
     // 既にゲームが終了している場合は何もしない
-    if (!this.isPlaying) return;
+    if (!this.gameState.isPlaying) return;
     
-    if (button.numberValue === this.currentNumber) {
+    // 現在の数字をローカル変数に保存（巻き戻り防止）
+    const expectedNumber = this.gameState.currentNumber;
+    
+    if (button.numberValue === expectedNumber) {
       // 正解
       button.isClicked = true;
       button.setFillStyle(0x00ff00);
       button.setScale(1.0);
       
-      this.chain.push(button.numberValue);
-      this.currentNumber++;
+      // 状態を一度に更新
+      this.gameState.chain.push(button.numberValue);
+      this.gameState.currentNumber = expectedNumber + 1;
       
       // エフェクト
       HapticManager.success();
@@ -200,20 +206,20 @@ class NumberChainScene extends BaseGameScene {
       this.showQuickFeedback('正解！', 0x00ff00, button.x, button.y - 40);
       
       // チェーンライン描画
-      if (this.chain.length > 1) {
+      if (this.gameState.chain.length > 1) {
         this.drawChainLine();
       }
       
       // スコア加算
-      const timeBonus = Math.floor(this.timeLeft * 10);
-      const chainBonus = this.chain.length * 50;
-      this.score += 100 + timeBonus + chainBonus;
+      const timeBonus = Math.floor(this.gameState.timeLeft * 10);
+      const chainBonus = this.gameState.chain.length * 50;
+      this.gameState.score += 100 + timeBonus + chainBonus;
       
       // UI更新
       this.updateUI();
       
       // クリア判定（遅延実行で画面停止を防ぐ）
-      if (this.currentNumber > 5) {
+      if (this.gameState.currentNumber > 5) {
         this.time.delayedCall(100, () => {
           this.completeChain();
         });
@@ -235,10 +241,10 @@ class NumberChainScene extends BaseGameScene {
   }
 
   drawChainLine() {
-    if (this.chain.length < 2) return;
+    if (this.gameState.chain.length < 2) return;
     
-    const prevButton = this.numberButtons.find(b => b.numberValue === this.chain[this.chain.length - 2]);
-    const currentButton = this.numberButtons.find(b => b.numberValue === this.chain[this.chain.length - 1]);
+    const prevButton = this.numberButtons.find(b => b.numberValue === this.gameState.chain[this.gameState.chain.length - 2]);
+    const currentButton = this.numberButtons.find(b => b.numberValue === this.gameState.chain[this.gameState.chain.length - 1]);
     
     if (prevButton && currentButton) {
       // Graphics オブジェクトを使用してラインを描画
@@ -267,17 +273,18 @@ class NumberChainScene extends BaseGameScene {
   }
 
   updateUI() {
-    this.scoreText.setText(`SCORE: ${this.score}`);
+    // ゲーム状態から読み取る（常に最新の状態を反映）
+    this.scoreText.setText(`SCORE: ${this.gameState.score}`);
     
-    if (this.currentNumber <= 5) {
-      this.nextNumberText.setText(`次は: [${this.currentNumber}]`);
+    if (this.gameState.currentNumber <= 5) {
+      this.nextNumberText.setText(`次は: [${this.gameState.currentNumber}]`);
     } else {
       this.nextNumberText.setText('完成！');
     }
     
     // チェーン表示
-    const chainDisplay = this.chain.map((num, index) => {
-      if (index < this.chain.length - 1) {
+    const chainDisplay = this.gameState.chain.map((num, index) => {
+      if (index < this.gameState.chain.length - 1) {
         return `${num}→`;
       }
       return num.toString();
@@ -287,9 +294,9 @@ class NumberChainScene extends BaseGameScene {
   }
 
   completeChain() {
-    if (!this.isPlaying) return; // 既に完了している場合は何もしない
+    if (!this.gameState.isPlaying) return; // 既に完了している場合は何もしない
     
-    this.isPlaying = false;
+    this.gameState.isPlaying = false;
     
     HapticManager.perfect();
     
@@ -304,8 +311,8 @@ class NumberChainScene extends BaseGameScene {
     
     // 完成ボーナス
     const completionBonus = 500;
-    const timeBonus = Math.floor(this.timeLeft * 50);
-    this.score += completionBonus + timeBonus;
+    const timeBonus = Math.floor(this.gameState.timeLeft * 50);
+    this.gameState.score += completionBonus + timeBonus;
     this.updateUI();
     
     this.add.text(this.game.config.width / 2, this.game.config.height / 2, 'CHAIN COMPLETE!', {
@@ -320,7 +327,7 @@ class NumberChainScene extends BaseGameScene {
   }
 
   endGame() {
-    this.isPlaying = false;
+    this.gameState.isPlaying = false;
     
     if (this.gameTimer) this.gameTimer.destroy();
     
@@ -334,13 +341,13 @@ class NumberChainScene extends BaseGameScene {
       this.chainLines = [];
     }
     
-    ScoreManager.addScore(this.score);
+    ScoreManager.addScore(this.gameState.score);
     ScoreManager.completeGame();
     
     // 結果表示
-    const completed = this.chain.length === 5;
+    const completed = this.gameState.chain.length === 5;
     if (!completed) {
-      this.add.text(this.game.config.width / 2, this.game.config.height / 2, `${this.chain.length}/5 完了`, {
+      this.add.text(this.game.config.width / 2, this.game.config.height / 2, `${this.gameState.chain.length}/5 完了`, {
         fontSize: '20px',
         fontFamily: 'Courier New',
         color: '#ffff00'

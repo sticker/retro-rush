@@ -11,7 +11,7 @@ class MissileDefenseScene extends BaseGameScene {
 
   create() {
     this.score = 0;
-    this.timeLeft = 6; // 6秒間のゲーム
+    this.timeLeft = 7; // 7秒間のゲーム
     this.missiles = [];
     this.buildings = [];
     this.missilesDestroyed = 0;
@@ -41,7 +41,7 @@ class MissileDefenseScene extends BaseGameScene {
       color: '#ffffff'
     });
     
-    this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 6', {
+    this.timeText = this.add.text(this.game.config.width - 50, 80, 'TIME: 7', {
       fontSize: '18px',
       fontFamily: 'Courier New',
       color: '#ffffff'
@@ -89,9 +89,9 @@ class MissileDefenseScene extends BaseGameScene {
 
   startGame() {
     this.isPlaying = true;
-    this.score = 0;
-    this.timeLeft = 6;
-    this.missilesDestroyed = 0;
+    // this.score = 0;
+    // this.timeLeft = 7;
+    // this.missilesDestroyed = 0;
     
     // タイマー開始
     this.gameTimer = this.time.addEvent({
@@ -144,7 +144,7 @@ class MissileDefenseScene extends BaseGameScene {
       if (this.isPlaying && !obj.isDestroyed) {
         this.destroyMissile(obj);
       }
-    }, { cooldown: 20 }); // さらに短く
+    }, { cooldown: 10 }); // さらに短く
     
     this.missiles.push(missile);
     

@@ -1,4 +1,5 @@
 import MainMenuScene from './scenes/MainMenuScene.js';
+import GameSelectScene from './scenes/GameSelectScene.js';
 import GameOverScene from './scenes/GameOverScene.js';
 import MoleWhackScene from './scenes/games/MoleWhackScene.js';
 import RhythmJumpScene from './scenes/games/RhythmJumpScene.js';
@@ -20,6 +21,7 @@ const config = {
   },
   scene: [
     MainMenuScene,
+    GameSelectScene,
     MoleWhackScene,
     RhythmJumpScene,
     ColorMatchScene,

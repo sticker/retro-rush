@@ -109,7 +109,7 @@ class MissileDefenseScene extends BaseGameScene {
     
     // ミサイル生成開始
     this.missileTimer = this.time.addEvent({
-      delay: 800,
+      delay: 1000, // 間隔を少し長く
       callback: () => this.spawnMissile(),
       loop: true
     });
@@ -131,29 +131,20 @@ class MissileDefenseScene extends BaseGameScene {
     // ミサイルの先端
     const tip = this.add.triangle(startX, startY - 20, 0, 15, 6, 0, -6, 0, 0xffff00);
     
-    // ミサイルの炎エフェクト
-    const flame = this.add.circle(startX, startY + 20, 8, 0xff8800);
-    flame.setAlpha(0.8);
+    // ミサイルの炎エフェクト（軽量化）
+    const flame = this.add.circle(startX, startY + 20, 6, 0xff8800);
+    flame.setAlpha(0.6);
     
     missile.tip = tip;
     missile.flame = flame;
     missile.isDestroyed = false;
     
-    missile.setInteractive({ useHandCursor: true });
-    
-    // より寛容な連続タップ対応
-    missile.on('pointerdown', () => {
-      if (this.isPlaying && !missile.isDestroyed) {
-        this.destroyMissile(missile);
+    // 共通タップ判定システムを使用
+    this.addTapHandler(missile, (obj) => {
+      if (this.isPlaying && !obj.isDestroyed) {
+        this.destroyMissile(obj);
       }
-    });
-    
-    // タッチイベントも追加で対応
-    missile.on('pointerup', () => {
-      if (this.isPlaying && !missile.isDestroyed) {
-        this.destroyMissile(missile);
-      }
-    });
+    }, { cooldown: 20 }); // さらに短く
     
     this.missiles.push(missile);
     
@@ -178,12 +169,11 @@ class MissileDefenseScene extends BaseGameScene {
   }
 
   destroyMissile(missile) {
-    // 連続タップ防止 - より寛容な判定
+    // 重複防止
     if (missile.isDestroyed || !missile.active) return;
     
-    // 即座に破壊フラグを設定
     missile.isDestroyed = true;
-    missile.disableInteractive();
+    this.removeTapHandler(missile); // タップハンドラーを削除
     
     this.missilesDestroyed++;
     this.score += 200;
@@ -269,7 +259,7 @@ class MissileDefenseScene extends BaseGameScene {
     }).setOrigin(0.5);
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.scene.start('GameOverScene');
+      this.endGameAndTransition();
     });
   }
 }

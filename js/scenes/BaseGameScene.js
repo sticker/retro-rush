@@ -4,6 +4,16 @@ import HapticManager from '../utils/HapticManager.js';
 
 // ベースシーンクラス（共通機能）
 class BaseGameScene extends Phaser.Scene {
+  constructor(config) {
+    super(config);
+    this.tapHandlers = new Map(); // タップハンドラー管理
+    this.tapCooldown = 50; // 連続タップのクールダウン（ミリ秒）
+    this.singleGameMode = false; // 単一ゲームモードフラグ
+  }
+  
+  init(data) {
+    this.singleGameMode = data?.singleGameMode || false;
+  }
   createThumbZoneUI() {
     const height = this.game.config.height;
     const thumbStartY = height * UI_CONFIG.THUMB_ZONE.startY;
@@ -70,6 +80,105 @@ class BaseGameScene extends Phaser.Scene {
       },
       repeat: 4
     });
+  }
+  
+  /**
+   * 共通タップ判定システム
+   * 連続タップを適切に処理し、重複実行を防ぐ
+   */
+  addTapHandler(gameObject, handler, options = {}) {
+    const {
+      cooldown = this.tapCooldown,
+      once = false,
+      preventDouble = true
+    } = options;
+    
+    let lastTapTime = 0;
+    
+    const wrappedHandler = (pointer) => {
+      const currentTime = Date.now();
+      
+      // クールダウンチェック
+      if (preventDouble && currentTime - lastTapTime < cooldown) {
+        return;
+      }
+      
+      lastTapTime = currentTime;
+      
+      // ハンドラー実行
+      try {
+        handler.call(this, gameObject, pointer);
+        
+        // 一度だけの実行の場合
+        if (once) {
+          this.removeTapHandler(gameObject);
+        }
+      } catch (error) {
+        console.error('Tap handler error:', error);
+      }
+    };
+    
+    // イベント登録
+    gameObject.setInteractive({ useHandCursor: true });
+    gameObject.on('pointerdown', wrappedHandler);
+    
+    // ハンドラーを保存
+    this.tapHandlers.set(gameObject, {
+      handler: wrappedHandler,
+      originalHandler: handler,
+      options
+    });
+    
+    return gameObject;
+  }
+  
+  /**
+   * タップハンドラーを削除
+   */
+  removeTapHandler(gameObject) {
+    const handlerData = this.tapHandlers.get(gameObject);
+    if (handlerData) {
+      gameObject.off('pointerdown', handlerData.handler);
+      this.tapHandlers.delete(gameObject);
+    }
+  }
+  
+  /**
+   * ゲームオブジェクトのタップを一時的に無効化
+   */
+  disableTap(gameObject) {
+    gameObject.disableInteractive();
+  }
+  
+  /**
+   * ゲームオブジェクトのタップを再有効化
+   */
+  enableTap(gameObject) {
+    gameObject.setInteractive({ useHandCursor: true });
+  }
+  
+  /**
+   * シーン破棄時のクリーンアップ
+   */
+  shutdown() {
+    this.tapHandlers.clear();
+    super.shutdown();
+  }
+  
+  /**
+   * ゲーム終了時の共通処理
+   */
+  endGameAndTransition() {
+    if (this.singleGameMode) {
+      // 単一ゲームモードの場合
+      this.scene.start('GameOverScene', {
+        singleGameMode: true,
+        gameKey: this.scene.key
+      });
+    } else {
+      // 通常モードの場合
+      this.scene.start('GameOverScene');
+    }
   }
 }
 

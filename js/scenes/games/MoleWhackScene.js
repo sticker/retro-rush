@@ -61,18 +61,14 @@ class MoleWhackScene extends BaseGameScene {
         
         const mole = this.add.circle(x, y, 25, 0x8b4513);
         mole.setStrokeStyle(2, 0x654321);
-        mole.setInteractive({ useHandCursor: true });
         mole.setVisible(false);
         
-        // より寛容な連続タップ対応
-        const handleMoleClick = () => {
-          if (this.isPlaying && mole.visible) {
-            this.hitMole(mole);
+        // 共通タップ判定システムを使用
+        this.addTapHandler(mole, (obj) => {
+          if (this.isPlaying && obj.visible) {
+            this.hitMole(obj);
           }
-        };
-        
-        mole.on('pointerdown', handleMoleClick);
-        mole.on('pointerup', handleMoleClick);
+        }, { cooldown: 30 });
         
         this.moles.push(mole);
       }
@@ -119,7 +115,6 @@ class MoleWhackScene extends BaseGameScene {
       this.time.delayedCall(1000, () => {
         if (mole.visible) {
           mole.setVisible(false);
-          mole.setInteractive({ useHandCursor: true }); // インタラクティブを再有効化
         }
       });
     }
@@ -130,7 +125,6 @@ class MoleWhackScene extends BaseGameScene {
     if (!mole.visible) return;
     
     mole.setVisible(false);
-    mole.disableInteractive(); // インタラクティブを無効化
     
     this.score += 100;
     this.scoreText.setText(`SCORE: ${this.score}`);
@@ -153,7 +147,7 @@ class MoleWhackScene extends BaseGameScene {
     ScoreManager.completeGame();
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.scene.start('GameOverScene');
+      this.endGameAndTransition();
     });
   }
 }

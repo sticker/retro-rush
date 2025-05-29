@@ -97,21 +97,12 @@ class NumberChainScene extends BaseGameScene {
       button.numberText = text;
       button.isClicked = false;
       
-      button.setInteractive({ useHandCursor: true });
-      // より寛容な連続タップ対応
-      const handleClick = () => {
-        if (this.isPlaying && !button.isClicked) {
-          // 正しい番号の場合のみ即座にフラグを設定
-          if (button.numberValue === this.currentNumber) {
-            button.isClicked = true;
-            button.disableInteractive(); // インタラクティブを無効化
-          }
-          this.clickNumber(button);
+      // 共通タップ判定システムを使用
+      this.addTapHandler(button, (obj) => {
+        if (this.isPlaying && !obj.isClicked) {
+          this.clickNumber(obj);
         }
-      };
-      
-      button.on('pointerdown', handleClick);
-      button.on('pointerup', handleClick);
+      }, { cooldown: 50 });
       
       button.on('pointerover', () => {
         if (!button.isClicked) {
@@ -191,13 +182,12 @@ class NumberChainScene extends BaseGameScene {
   }
 
   clickNumber(button) {
-    // 既にゲームが終了しているか、既にクリック済みの場合は何もしない
-    if (!this.isPlaying || button.isClicked) return;
+    // 既にゲームが終了している場合は何もしない
+    if (!this.isPlaying) return;
     
     if (button.numberValue === this.currentNumber) {
-      // 正解 - 即座にフラグを設定
+      // 正解
       button.isClicked = true;
-      button.disableInteractive();
       button.setFillStyle(0x00ff00);
       button.setScale(1.0);
       
@@ -235,9 +225,11 @@ class NumberChainScene extends BaseGameScene {
       this.showQuickFeedback('違います！', 0xff0000, button.x, button.y - 40);
       
       // ボタンを赤く点滅（軽量化）
-      button.setTint(0xff0000);
+      button.setFillStyle(0xff6666);
       this.time.delayedCall(200, () => {
-        button.clearTint();
+        if (!button.isClicked) {
+          button.setFillStyle(0x4444ff);
+        }
       });
     }
   }
@@ -356,7 +348,7 @@ class NumberChainScene extends BaseGameScene {
     }
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.scene.start('GameOverScene');
+      this.endGameAndTransition();
     });
   }
 }

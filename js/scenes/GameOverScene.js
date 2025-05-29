@@ -8,19 +8,30 @@ class GameOverScene extends Phaser.Scene {
     super({ key: 'GameOverScene' });
   }
 
+  init(data) {
+    this.singleGameMode = data?.singleGameMode || false;
+    this.gameKey = data?.gameKey || null;
+  }
+  
   create() {
-    const state = ScoreManager.getGameState();
-    
-    // 次のゲームがあるかチェック
-    ScoreManager.incrementGame();
-    const hasMoreGames = ScoreManager.hasMoreGames();
-    
-    if (hasMoreGames) {
-      // 次のゲームへ
-      this.showGameTransition();
+    if (this.singleGameMode) {
+      // 単一ゲームモードの結果表示
+      this.showSingleGameResult();
     } else {
-      // 最終結果（5ゲーム完了）
-      this.showFinalResult();
+      // 通常モード
+      const state = ScoreManager.getGameState();
+      
+      // 次のゲームがあるかチェック
+      ScoreManager.incrementGame();
+      const hasMoreGames = ScoreManager.hasMoreGames();
+      
+      if (hasMoreGames) {
+        // 次のゲームへ
+        this.showGameTransition();
+      } else {
+        // 最終結果（5ゲーム完了）
+        this.showFinalResult();
+      }
     }
   }
 
@@ -150,6 +161,97 @@ class GameOverScene extends Phaser.Scene {
     
     menuButton.on('pointerout', () => {
       menuButton.setFillStyle(0x0088ff);
+    });
+  }
+  
+  showSingleGameResult() {
+    const centerX = this.game.config.width / 2;
+    const centerY = this.game.config.height / 2;
+    const state = ScoreManager.getGameState();
+    
+    this.add.text(centerX, centerY - 60, 'GAME OVER', {
+      fontSize: '28px',
+      fontFamily: 'Courier New',
+      color: '#ff6347'
+    }).setOrigin(0.5);
+    
+    this.add.text(centerX, centerY, `SCORE: ${state.totalScore}`, {
+      fontSize: '24px',
+      fontFamily: 'Courier New',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+    
+    // リトライボタン
+    const retryButtonY = centerY + 80;
+    const retryButton = this.add.rectangle(
+      centerX,
+      retryButtonY,
+      200,
+      UI_CONFIG.MIN_TAP_SIZE,
+      0x00ff00
+    );
+    
+    const retryText = this.add.text(centerX, retryButtonY, 'RETRY', {
+      fontSize: '20px',
+      fontFamily: 'Courier New',
+      color: '#000000'
+    }).setOrigin(0.5);
+    
+    retryButton.setInteractive({ useHandCursor: true });
+    
+    retryButton.on('pointerdown', () => {
+      HapticManager.tap();
+      RetroEffects.bounceEffect(this, retryButton);
+      RetroEffects.bounceEffect(this, retryText);
+      
+      this.time.delayedCall(200, () => {
+        ScoreManager.resetGameState();
+        this.scene.start(this.gameKey, { singleGameMode: true });
+      });
+    });
+    
+    retryButton.on('pointerover', () => {
+      retryButton.setFillStyle(0x44ff44);
+    });
+    
+    retryButton.on('pointerout', () => {
+      retryButton.setFillStyle(0x00ff00);
+    });
+    
+    // ゲーム選択に戻るボタン
+    const backButtonY = retryButtonY + 70;
+    const backButton = this.add.rectangle(
+      centerX,
+      backButtonY,
+      200,
+      UI_CONFIG.MIN_TAP_SIZE,
+      0x666666
+    );
+    
+    const backText = this.add.text(centerX, backButtonY, 'ゲーム選択', {
+      fontSize: '20px',
+      fontFamily: 'Courier New',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+    
+    backButton.setInteractive({ useHandCursor: true });
+    
+    backButton.on('pointerdown', () => {
+      HapticManager.tap();
+      RetroEffects.bounceEffect(this, backButton);
+      RetroEffects.bounceEffect(this, backText);
+      
+      this.time.delayedCall(200, () => {
+        this.scene.start('GameSelectScene');
+      });
+    });
+    
+    backButton.on('pointerover', () => {
+      backButton.setFillStyle(0x888888);
+    });
+    
+    backButton.on('pointerout', () => {
+      backButton.setFillStyle(0x666666);
     });
   }
 

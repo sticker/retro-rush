@@ -79,19 +79,14 @@ class ColorMatchScene extends BaseGameScene {
       
       const button = this.add.circle(x, y, buttonSize / 2, this.colors[i].value);
       button.setStrokeStyle(2, 0xffffff);
-      button.setInteractive({ useHandCursor: true });
-      
       button.colorData = this.colors[i];
       
-      // より寛容な連続タップ対応
-      const handleColorClick = () => {
+      // 共通タップ判定システムを使用
+      this.addTapHandler(button, (obj) => {
         if (this.isPlaying) {
-          this.checkColor(button.colorData);
+          this.checkColor(obj.colorData);
         }
-      };
-      
-      button.on('pointerdown', handleColorClick);
-      button.on('pointerup', handleColorClick);
+      }, { cooldown: 100 }); // 色判定には少し長めのクールダウン
       
       button.on('pointerover', () => {
         button.setScale(1.1);
@@ -177,7 +172,7 @@ class ColorMatchScene extends BaseGameScene {
     ScoreManager.completeGame();
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.scene.start('GameOverScene');
+      this.endGameAndTransition();
     });
   }
 }

@@ -317,7 +317,7 @@ class BalanceTowerScene extends BaseGameScene {
     }
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.scene.start('GameOverScene');
+      this.endGameAndTransition();
     });
   }
 }

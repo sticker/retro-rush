@@ -73,12 +73,10 @@ class RhythmJumpScene extends BaseGameScene {
       color: '#ffffff'
     }).setOrigin(0.5);
     
-    this.jumpButton.setInteractive({ useHandCursor: true });
-    
-    // より寛容な連続タップ対応
-    const handleJump = () => this.jump();
-    this.jumpButton.on('pointerdown', handleJump);
-    this.jumpButton.on('pointerup', handleJump);
+    // 共通タップ判定システムを使用
+    this.addTapHandler(this.jumpButton, () => {
+      this.jump();
+    }, { cooldown: 50 });
   }
 
   startGame() {
@@ -107,9 +105,14 @@ class RhythmJumpScene extends BaseGameScene {
       loop: true
     });
     
+    // 最初の障害物を早めに出現
+    this.time.delayedCall(100, () => {
+      this.createObstacle();
+    });
+    
     // 障害物生成開始
     this.obstacleTimer = this.time.addEvent({
-      delay: 1600, // ビートの2倍間隔
+      delay: 1200, // 適度な間隔に調整
       callback: () => this.createObstacle(),
       loop: true
     });
@@ -131,7 +134,7 @@ class RhythmJumpScene extends BaseGameScene {
     if (!this.isPlaying) return;
     
     const obstacle = this.add.rectangle(
-      this.game.config.width + 20,
+      this.game.config.width + 10,
       this.playerGroundY,
       30,
       40,
@@ -140,11 +143,11 @@ class RhythmJumpScene extends BaseGameScene {
     
     this.obstacles.push(obstacle);
     
-    // 障害物移動
+    // 障害物移動（少し遅く）
     this.tweens.add({
       targets: obstacle,
-      x: -50,
-      duration: 3000,
+      x: -230,
+      duration: 3500,
       ease: 'Linear',
       onComplete: () => {
         obstacle.destroy();
@@ -162,11 +165,11 @@ class RhythmJumpScene extends BaseGameScene {
     this.isJumping = true;
     HapticManager.tap();
     
-    // ジャンプアニメーション
+    // ジャンプアニメーション（高さと時間を調整）
     this.tweens.add({
       targets: this.player,
-      y: this.playerGroundY - 60,
-      duration: 300,
+      y: this.playerGroundY - 50, // より高く
+      duration: 300, // やや長め
       ease: 'Cubic.easeOut',
       yoyo: true,
       onComplete: () => {
@@ -226,7 +229,7 @@ class RhythmJumpScene extends BaseGameScene {
     ScoreManager.completeGame();
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.scene.start('GameOverScene');
+      this.endGameAndTransition();
     });
   }
 }

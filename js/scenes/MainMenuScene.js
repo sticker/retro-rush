@@ -33,7 +33,8 @@ class MainMenuScene extends Phaser.Scene {
       color: '#ffffff'
     }).setOrigin(0.5);
     
-    const buttonY = this.game.config.height * 0.7;
+    // STARTボタン
+    const buttonY = this.game.config.height * 0.65;
     const startButton = this.add.rectangle(
       centerX, 
       buttonY, 
@@ -49,6 +50,24 @@ class MainMenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
     
     startButton.setInteractive({ useHandCursor: true });
+    
+    // ゲーム選択ボタン
+    const selectButtonY = buttonY + 70;
+    const selectButton = this.add.rectangle(
+      centerX,
+      selectButtonY,
+      200,
+      UI_CONFIG.MIN_TAP_SIZE,
+      0x1e90ff
+    );
+    
+    const selectText = this.add.text(centerX, selectButtonY, 'ゲーム選択', {
+      fontSize: '20px',
+      fontFamily: 'Courier New',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+    
+    selectButton.setInteractive({ useHandCursor: true });
     
     startButton.on('pointerdown', () => {
       HapticManager.tap();
@@ -70,6 +89,25 @@ class MainMenuScene extends Phaser.Scene {
     
     startButton.on('pointerout', () => {
       startButton.setFillStyle(0x00ff00);
+    });
+    
+    // ゲーム選択ボタンのイベント
+    selectButton.on('pointerdown', () => {
+      HapticManager.tap();
+      RetroEffects.bounceEffect(this, selectButton);
+      RetroEffects.bounceEffect(this, selectText);
+      
+      this.time.delayedCall(200, () => {
+        this.scene.start('GameSelectScene');
+      });
+    });
+    
+    selectButton.on('pointerover', () => {
+      selectButton.setFillStyle(0x4682b4);
+    });
+    
+    selectButton.on('pointerout', () => {
+      selectButton.setFillStyle(0x1e90ff);
     });
     
     RetroEffects.addFlicker(this);

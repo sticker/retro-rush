@@ -236,14 +236,15 @@ class RhythmJumpScene extends BaseGameScene {
     if (isCleared) {
       // クリア時のみゲーム完了としてカウント
       ScoreManager.completeGame();
-      this.showClearEffect();
+      this.showClearEffect(() => {
+        this.endGameAndTransition();
+      });
     } else {
       this.showFailEffect();
+      this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
+        this.endGameAndTransition();
+      });
     }
-    
-    this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.endGameAndTransition();
-    });
   }
 }
 

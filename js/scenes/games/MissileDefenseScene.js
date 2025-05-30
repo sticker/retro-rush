@@ -255,24 +255,36 @@ class MissileDefenseScene extends BaseGameScene {
     if (isCleared) {
       // クリア時のみゲーム完了としてカウント
       ScoreManager.completeGame();
-      this.showClearEffect();
+      this.showClearEffect(() => {
+        this.endGameAndTransition();
+      });
+      
+      // 結果表示
+      const resultText = 'PERFECT!';
+      const resultColor = 0x00ff00;
+      
+      this.add.text(this.game.config.width / 2, this.game.config.height / 2, resultText, {
+        fontSize: '24px',
+        fontFamily: UI_CONFIG.FONT.family,
+        color: Phaser.Display.Color.IntegerToColor(resultColor).rgba
+      }).setOrigin(0.5);
     } else {
       this.showFailEffect();
+      
+      // 結果表示
+      const resultText = `${this.missilesDestroyed}/5 撃墜`;
+      const resultColor = 0xffff00;
+      
+      this.add.text(this.game.config.width / 2, this.game.config.height / 2, resultText, {
+        fontSize: '24px',
+        fontFamily: UI_CONFIG.FONT.family,
+        color: Phaser.Display.Color.IntegerToColor(resultColor).rgba
+      }).setOrigin(0.5);
+      
+      this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
+        this.endGameAndTransition();
+      });
     }
-    
-    // 結果表示
-    const resultText = isCleared ? 'PERFECT!' : `${this.missilesDestroyed}/5 撃墜`;
-    const resultColor = isCleared ? 0x00ff00 : 0xffff00;
-    
-    this.add.text(this.game.config.width / 2, this.game.config.height / 2, resultText, {
-      fontSize: '24px',
-      fontFamily: UI_CONFIG.FONT.family,
-      color: Phaser.Display.Color.IntegerToColor(resultColor).rgba
-    }).setOrigin(0.5);
-    
-    this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.endGameAndTransition();
-    });
   }
 }
 

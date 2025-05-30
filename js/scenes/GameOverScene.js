@@ -41,7 +41,7 @@ class GameOverScene extends Phaser.Scene {
         // 次のゲームへ
         this.showGameTransition();
       } else {
-        // 最終結果（5ゲーム完了）
+        // 最終結果（9ゲーム完了）
         this.showFinalResult();
       }
     }
@@ -66,26 +66,59 @@ class GameOverScene extends Phaser.Scene {
       color: '#ffffff'
     }).setOrigin(0.5);
     
-    this.add.text(centerX, centerY + 20, `GAME: ${state.currentGame}/5`, {
-      fontSize: '16px',
-      fontFamily: UI_CONFIG.FONT.family,
-      color: '#00ffff'
-    }).setOrigin(0.5);
+    // this.add.text(centerX, centerY + 20, `GAME: ${state.currentGame}/9`, {
+    //   fontSize: '16px',
+    //   fontFamily: UI_CONFIG.FONT.family,
+    //   color: '#00ffff'
+    // }).setOrigin(0.5);
     
-    // 進行度バー
-    const progressBarWidth = 200;
-    const progressBg = this.add.rectangle(centerX, centerY + 50, progressBarWidth, 10, 0x333333);
-    progressBg.setStrokeStyle(1, 0x666666);
+    // 進行度インジケーター（9つの丸）
+    const indicatorY = centerY + 50;
+    const indicatorSpacing = 22;
+    const totalWidth = indicatorSpacing * 8; // 9つの丸の間隔
+    const startX = centerX - totalWidth / 2;
     
-    const progress = (state.currentGame - 1) / 5;
-    const progressBar = this.add.rectangle(
-      centerX - progressBarWidth / 2 + (progressBarWidth * progress / 2), 
-      centerY + 50, 
-      progressBarWidth * progress, 
-      8, 
-      0x00ff00
-    );
-    progressBar.setOrigin(0, 0.5);
+    // 各ゲームのクリア状況を取得（現在のゲームも含む）
+    const completedGames = new Set();
+    for (let i = 0; i < state.currentGame; i++) {
+      const gameKey = state.gameSequence[i];
+      if (state.completedGames.has(gameKey + i)) {
+        completedGames.add(i);
+      }
+    }
+    
+    for (let i = 0; i < 9; i++) {
+      const x = startX + (indicatorSpacing * i);
+      
+      if (i < state.currentGame) {
+        // プレイ済みのゲーム（現在のゲームも含む）
+        if (completedGames.has(i)) {
+          // クリアしたゲーム - 緑のチェックマーク
+          const checkCircle = this.add.circle(x, indicatorY, 8, 0x00ff00);
+          checkCircle.setStrokeStyle(2, 0x00ff00);
+          
+          const check = this.add.text(x, indicatorY, '✓', {
+            fontSize: '12px',
+            fontFamily: UI_CONFIG.FONT.family,
+            color: '#ffffff'
+          }).setOrigin(0.5);
+        } else {
+          // 失敗したゲーム - 赤いバツマーク
+          const failCircle = this.add.circle(x, indicatorY, 8, 0xff0000);
+          failCircle.setStrokeStyle(2, 0xff0000);
+          
+          const cross = this.add.text(x, indicatorY, '×', {
+            fontSize: '12px',
+            fontFamily: UI_CONFIG.FONT.family,
+            color: '#ffffff'
+          }).setOrigin(0.5);
+        }
+      } else {
+        // 未プレイのゲーム
+        const emptyCircle = this.add.circle(x, indicatorY, 8, 0x333333, 0);
+        emptyCircle.setStrokeStyle(2, 0x666666);
+      }
+    }
     
     // 自動で次のゲームへ
     this.time.delayedCall(1500, () => {
@@ -135,11 +168,56 @@ class GameOverScene extends Phaser.Scene {
     }).setOrigin(0.5);
     
     // 完了したゲーム数表示
-    this.add.text(centerX, centerY + 60, `GAMES COMPLETED: ${state.gamesCompleted}/5`, {
-      fontSize: '14px',
-      fontFamily: UI_CONFIG.FONT.family,
-      color: '#00ffff'
-    }).setOrigin(0.5);
+    // this.add.text(centerX, centerY + 60, `GAMES COMPLETED: ${state.gamesCompleted}/9`, {
+    //   fontSize: '14px',
+    //   fontFamily: UI_CONFIG.FONT.family,
+    //   color: '#00ffff'
+    // }).setOrigin(0.5);
+    
+    // 進行度インジケーター（9つの丸）
+    const indicatorY = centerY + 85;
+    const indicatorSpacing = 22;
+    const totalWidth = indicatorSpacing * 8;
+    const startX = centerX - totalWidth / 2;
+    
+    // 各ゲームのクリア状況を取得
+    const completedGames = new Set();
+    for (let i = 0; i < state.currentGame; i++) {
+      const gameKey = state.gameSequence[i];
+      if (state.completedGames.has(gameKey + i)) {
+        completedGames.add(i);
+      }
+    }
+    
+    for (let i = 0; i < 9; i++) {
+      const x = startX + (indicatorSpacing * i);
+      
+      if (completedGames.has(i)) {
+        // クリアしたゲーム - 緑のチェックマーク
+        const checkCircle = this.add.circle(x, indicatorY, 6, 0x00ff00);
+        checkCircle.setStrokeStyle(1.5, 0x00ff00);
+        
+        const check = this.add.text(x, indicatorY, '✓', {
+          fontSize: '10px',
+          fontFamily: UI_CONFIG.FONT.family,
+          color: '#ffffff'
+        }).setOrigin(0.5);
+      } else if (i < state.currentGame) {
+        // プレイしたが失敗したゲーム - 赤い×
+        const failCircle = this.add.circle(x, indicatorY, 6, 0xff0000);
+        failCircle.setStrokeStyle(1.5, 0xff0000);
+        
+        const cross = this.add.text(x, indicatorY, '×', {
+          fontSize: '10px',
+          fontFamily: UI_CONFIG.FONT.family,
+          color: '#ffffff'
+        }).setOrigin(0.5);
+      } else {
+        // 未プレイのゲーム
+        const emptyCircle = this.add.circle(x, indicatorY, 6, 0x333333, 0);
+        emptyCircle.setStrokeStyle(1.5, 0x666666);
+      }
+    }
     
     // REPLAYテキスト（ファミコン風）
     const buttonY = this.game.config.height * 0.8;

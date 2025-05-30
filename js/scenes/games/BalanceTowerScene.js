@@ -311,7 +311,9 @@ class BalanceTowerScene extends BaseGameScene {
     if (isCleared) {
       // クリア時のみゲーム完了としてカウント
       ScoreManager.completeGame();
-      this.showClearEffect();
+      this.showClearEffect(() => {
+        this.endGameAndTransition();
+      });
       HapticManager.success();
       this.add.text(this.game.config.width / 2, this.game.config.height / 2, 'SUCCESS!', {
         fontSize: '24px',
@@ -321,11 +323,10 @@ class BalanceTowerScene extends BaseGameScene {
       RetroEffects.createParticles(this, this.game.config.width / 2, this.game.config.height / 2, 'success');
     } else {
       this.showFailEffect();
+      this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
+        this.endGameAndTransition();
+      });
     }
-    
-    this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
-      this.endGameAndTransition();
-    });
   }
 }
 

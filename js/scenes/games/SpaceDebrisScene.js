@@ -376,6 +376,9 @@ class SpaceDebrisScene extends BaseGameScene {
         const timeBonus = this.gameTime * 10;
         const score = this.destroyedCount * 100 + timeBonus;
         ScoreManager.addScore(score);
+        
+        // クリア完了を記録（重要！）
+        ScoreManager.completeGame();
 
         // クリア演出
         this.showClearEffect(() => {

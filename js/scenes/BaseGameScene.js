@@ -23,6 +23,8 @@ class BaseGameScene extends Phaser.Scene {
     }
     // サウンドマネージャーにシーンを設定
     SoundManager.setScene(this);
+    // クリア演出フラグをリセット
+    this.clearEffectShown = false;
   }
   createThumbZoneUI() {
     const height = this.game.config.height;
@@ -251,6 +253,16 @@ class BaseGameScene extends Phaser.Scene {
   
   /**
    * ゲームクリア時の共通処理
+   * 
+   * 重要: このメソッドを呼ぶ前に必ず ScoreManager.completeGame() を呼び出すこと！
+   * これを忘れると、「ナイス！」が表示されてもクリア扱いにならず、
+   * NEXT GAME画面でバツマークが表示されてしまいます。
+   * 
+   * 正しい使用例:
+   * ScoreManager.completeGame();  // 必須！
+   * this.showClearEffect(() => {
+   *   this.endGameAndTransition();
+   * });
    */
   showClearEffect(onComplete) {
     // 既に表示済みの場合は何もしない

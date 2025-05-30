@@ -36,11 +36,11 @@ class ScoreManager {
       'ShapeSortScene',
     ];
     
-    // 6つのゲームから5つをランダムに選択
+    // 9つのゲーム全てをランダムな順序で選択
     const sequence = [];
     const availableGames = [...allGames];
     
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 9; i++) {
       const randomIndex = Math.floor(Math.random() * availableGames.length);
       sequence.push(availableGames.splice(randomIndex, 1)[0]);
     }

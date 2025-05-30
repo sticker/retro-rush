@@ -220,11 +220,9 @@ class NumberChainScene extends BaseGameScene {
       // UI更新
       this.updateUI();
       
-      // クリア判定（遅延実行で画面停止を防ぐ）
+      // クリア判定（即座に実行）
       if (this.gameState.currentNumber > 5) {
-        this.time.delayedCall(100, () => {
-          this.completeChain();
-        });
+        this.completeChain();
       }
     } else {
       // 間違い - タイマーを停めない
@@ -300,6 +298,9 @@ class NumberChainScene extends BaseGameScene {
     
     this.gameState.isPlaying = false;
     
+    // タイマーを即座に停止
+    if (this.gameTimer) this.gameTimer.destroy();
+    
     HapticManager.perfect();
     
     // 完成エフェクト
@@ -317,18 +318,20 @@ class NumberChainScene extends BaseGameScene {
     this.gameState.score += completionBonus + timeBonus;
     this.updateUI();
     
-    this.add.text(this.game.config.width / 2, this.game.config.height / 2, 'CHAIN COMPLETE!', {
-      fontSize: '20px',
-      fontFamily: UI_CONFIG.FONT.family,
-      color: '#ff00ff'
-    }).setOrigin(0.5);
+    // スコアを追加
+    ScoreManager.addScore(this.gameState.score);
+    ScoreManager.completeGame();
     
-    this.time.delayedCall(1500, () => {
-      this.endGame(true); // 成功として終了
+    // 即座に「ナイス！」を表示
+    this.showClearEffect(() => {
+      this.endGameAndTransition();
     });
   }
 
-  endGame(fromCompleteChain = false) {
+  endGame() {
+    // 既に終了している場合は何もしない
+    if (!this.gameState.isPlaying) return;
+    
     this.gameState.isPlaying = false;
     
     if (this.gameTimer) this.gameTimer.destroy();
@@ -343,26 +346,16 @@ class NumberChainScene extends BaseGameScene {
       this.chainLines = [];
     }
     
+    // 時間切れの場合のみ（completeChainから呼ばれていない場合）
     ScoreManager.addScore(this.gameState.score);
     
-    // クリア判定
-    const isCleared = this.gameState.chain.length === 5;
-    
-    if (isCleared) {
-      // クリア時のみゲーム完了としてカウント
-      ScoreManager.completeGame();
-      if (!fromCompleteChain) {
-        // completeChain()から呼ばれた場合は既にエフェクトが表示されているのでスキップ
-        this.showClearEffect();
-      }
-    } else {
-      this.showFailEffect();
-      this.add.text(this.game.config.width / 2, this.game.config.height / 2, `${this.gameState.chain.length}/5 完了`, {
-        fontSize: '20px',
-        fontFamily: UI_CONFIG.FONT.family,
-        color: '#ffff00'
-      }).setOrigin(0.5);
-    }
+    // 失敗演出
+    this.showFailEffect();
+    this.add.text(this.game.config.width / 2, this.game.config.height / 2, `${this.gameState.chain.length}/5 完了`, {
+      fontSize: '20px',
+      fontFamily: UI_CONFIG.FONT.family,
+      color: '#ffff00'
+    }).setOrigin(0.5);
     
     this.time.delayedCall(UI_CONFIG.TRANSITION.showResult, () => {
       this.endGameAndTransition();

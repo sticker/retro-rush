@@ -160,22 +160,25 @@ class ShapeSortScene extends BaseGameScene {
             onSwipeStart: (x, y) => {
                 if (!this.isPlaying || !this.currentShape) return;
                 
-                // シェイプの位置とタップ位置を確認
+                // シェイプの位置とタップ位置を確認（シンプルな距離判定）
                 const shape = this.currentShape;
-                const bounds = shape.getBounds();
+                const distance = Phaser.Math.Distance.Between(x, y, shape.x, shape.y);
                 
-                if (bounds.contains(x, y)) {
+                // シェイプの中心から60ピクセル以内なら操作開始
+                if (distance < 60) {
                     this.isDragging = true;
                     shape.startX = shape.x;
                     shape.startY = shape.y;
+                    // ドラッグ開始時のオフセットを記録
+                    this.dragOffsetX = shape.x - x;
                 }
             },
             onSwipeMove: (x, y, deltaX, deltaY) => {
                 if (!this.isDragging || !this.currentShape) return;
                 
-                // シェイプを移動（横方向のみ）
+                // シェイプを移動（横方向のみ、オフセットを考慮）
                 this.currentShape.x = Phaser.Math.Clamp(
-                    x,
+                    x + this.dragOffsetX,
                     40,
                     this.game.config.width - 40
                 );
@@ -185,7 +188,8 @@ class ShapeSortScene extends BaseGameScene {
                 
                 this.isDragging = false;
                 this.checkShapePlacement();
-            }
+            },
+            threshold: 5  // スワイプ判定の閾値を小さくして感度を上げる
         });
     }
 
@@ -247,11 +251,15 @@ class ShapeSortScene extends BaseGameScene {
         shape.setStrokeStyle(3, 0xffffff);
         this.currentShape.add(shape);
         
-        // 落下アニメーション
+        // コンテナのサイズを設定（タッチ判定用）
+        this.currentShape.setSize(80, 80);
+        this.currentShape.setInteractive();
+        
+        // 落下アニメーション（短縮）
         this.tweens.add({
             targets: this.currentShape,
             y: y + 10,
-            duration: 100,
+            duration: 50,
             yoyo: true,
             ease: 'Bounce.easeOut'
         });
@@ -413,6 +421,9 @@ class ShapeSortScene extends BaseGameScene {
         const timeBonus = this.gameTime * 15;
         const totalScore = (this.successCount * 100) + timeBonus;
         ScoreManager.addScore(totalScore);
+        
+        // クリア完了を記録（重要！）
+        ScoreManager.completeGame();
 
         // クリア演出
         this.showClearEffect(() => {

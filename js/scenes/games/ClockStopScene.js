@@ -10,7 +10,7 @@ class ClockStopScene extends BaseGameScene {
     constructor() {
         super({ key: 'ClockStopScene' });
         this.gameTime = 9; // ゲーム時間（秒）
-        this.clearCondition = 2; // クリア条件（成功回数）
+        this.clearCondition = 3; // クリア条件（成功回数）
         this.successCount = 0; // 成功回数
         this.isPlaying = false;
         this.clockHand = null;
@@ -263,7 +263,7 @@ class ClockStopScene extends BaseGameScene {
         } else if (diff <= 25) {
             // グッド
             result = 'good';
-            feedbackText = 'おしい！';
+            feedbackText = 'グッド！';
             feedbackColor = 0x00ff00;
             score = 100;
             this.successCount++;
@@ -293,7 +293,7 @@ class ClockStopScene extends BaseGameScene {
         }
         
         // 次のラウンドへ
-        this.time.delayedCall(1500, () => {
+        this.time.delayedCall(500, () => {
             if (this.isPlaying) {
                 this.canTap = true;
                 this.startRotation();
@@ -371,6 +371,9 @@ class ClockStopScene extends BaseGameScene {
         const timeBonus = this.gameTime * 20;
         const totalScore = (this.successCount * 200) + timeBonus;
         ScoreManager.addScore(totalScore);
+        
+        // クリア完了を記録（重要！）
+        ScoreManager.completeGame();
 
         // クリア演出
         this.showClearEffect(() => {

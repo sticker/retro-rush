@@ -10,8 +10,9 @@ class SpaceDebrisScene extends BaseGameScene {
     constructor() {
         super({ key: 'SpaceDebrisScene' });
         this.gameTime = 10; // ゲーム時間（秒）
-        this.clearCondition = 5; // クリア条件（破壊数）
-        this.destroyedCount = 0; // 破壊した隕石数
+        this.clearCondition = 1; // クリア条件（生存）
+        this.hitCount = 0; // 被弾回数
+        this.destroyedCount = 0; // 破壊した隕石数（スコア用）
         this.isPlaying = false;
         this.meteors = [];
         this.spaceship = null;
@@ -21,6 +22,7 @@ class SpaceDebrisScene extends BaseGameScene {
     create() {
         // ゲーム状態をリセット
         this.gameTime = 10;
+        this.hitCount = 0;
         this.destroyedCount = 0;
         this.isPlaying = false;
         this.meteors = [];
@@ -63,8 +65,8 @@ class SpaceDebrisScene extends BaseGameScene {
             fontFamily: UI_CONFIG.FONT.family
         }).setOrigin(0.5);
 
-        // スコア表示
-        this.scoreText = this.add.text(30, 80, `破壊: ${'★'.repeat(this.destroyedCount)}${'☆'.repeat(this.clearCondition - this.destroyedCount)}`, {
+        // 状態表示
+        this.scoreText = this.add.text(30, 80, '状態: 無傷', {
             fontSize: '16px',
             color: '#ffffff',
             fontFamily: UI_CONFIG.FONT.family
@@ -84,7 +86,7 @@ class SpaceDebrisScene extends BaseGameScene {
         this.instructionText = this.add.text(
             this.game.config.width / 2,
             this.game.config.height - 60,
-            '宇宙船を守れ！',
+            '隕石から生き延びろ！',
             {
                 fontSize: '20px',
                 color: '#ffff00',
@@ -156,15 +158,17 @@ class SpaceDebrisScene extends BaseGameScene {
         this.gameEnded = false;
         this.instructionText.destroy();
 
-        // 隕石生成タイマー
+        // 隕石生成タイマー（頻度を上げる）
         this.meteorTimer = this.time.addEvent({
-            delay: 1200,
+            delay: 800, // 1200msから800msに短縮
             callback: () => this.createMeteor(),
             loop: true
         });
 
-        // 最初の隕石を即座に生成
+        // 最初の隕石を複数生成
         this.createMeteor();
+        this.time.delayedCall(200, () => this.createMeteor());
+        this.time.delayedCall(400, () => this.createMeteor());
 
         // ゲームタイマー
         this.gameTimer = this.time.addEvent({
@@ -240,9 +244,9 @@ class SpaceDebrisScene extends BaseGameScene {
             meteorContainer.add(crater);
         }
 
-        // 隕石を宇宙船に向かって移動
+        // 隕石を宇宙船に向かって移動（速度を上げる）
         const angleToShip = Phaser.Math.Angle.Between(x, y, this.spaceship.x, this.spaceship.y);
-        const speed = Phaser.Math.Between(60, 100);
+        const speed = Phaser.Math.Between(100, 150); // 60-100から100-150に増加
         
         // Physics bodyを作成
         meteorContainer.velocity = {
@@ -270,7 +274,7 @@ class SpaceDebrisScene extends BaseGameScene {
         this.meteors.push(meteorContainer);
 
         // 接近音
-        SoundManager.play('push');
+        // SoundManager.play('push');
     }
 
     destroyMeteor(meteorContainer) {
@@ -289,7 +293,7 @@ class SpaceDebrisScene extends BaseGameScene {
         
         // スコア更新
         this.destroyedCount++;
-        this.scoreText.setText(`破壊: ${'★'.repeat(this.destroyedCount)}${'☆'.repeat(Math.max(0, this.clearCondition - this.destroyedCount))}`);
+        // 状態表示は変更しない（破壊数はスコアに反映）
         
         // フィードバック表示
         this.showQuickFeedback('バシュー!', 0x00ffff, x, y);
@@ -301,10 +305,7 @@ class SpaceDebrisScene extends BaseGameScene {
         }
         meteorContainer.destroy();
 
-        // クリア判定
-        if (this.destroyedCount >= this.clearCondition && this.isPlaying) {
-            this.clearGame();
-        }
+        // クリア判定はしない（生存ゲームのため）
     }
 
     update() {
@@ -345,6 +346,9 @@ class SpaceDebrisScene extends BaseGameScene {
     }
 
     spaceshipHit() {
+        // 被弾回数を増やす
+        this.hitCount++;
+        
         // 被弾エフェクト
         RetroEffects.createParticles(this, this.spaceship.x, this.spaceship.y, 'fail');
         
@@ -374,32 +378,20 @@ class SpaceDebrisScene extends BaseGameScene {
         
         // 画面を揺らす
         this.cameras.main.shake(200, 0.01);
+        
+        // 状態表示を更新
+        this.scoreText.setText('状態: 被弾!');
+        this.scoreText.setColor('#ff0000');
+        
+        // 1回でも被弾したら失敗
+        if (this.hitCount >= this.clearCondition) {
+            this.time.delayedCall(500, () => {
+                this.endGame();
+            });
+        }
     }
 
-    clearGame() {
-        // 既に終了している場合は何もしない
-        if (this.gameEnded) return;
-        
-        this.gameEnded = true;
-        this.isPlaying = false;
-        
-        // タイマー停止
-        if (this.meteorTimer) this.meteorTimer.remove();
-        if (this.gameTimer) this.gameTimer.remove();
-
-        // スコア計算
-        const timeBonus = this.gameTime * 10;
-        const score = this.destroyedCount * 100 + timeBonus;
-        ScoreManager.addScore(score);
-        
-        // クリア完了を記録（重要！）
-        ScoreManager.completeGame();
-
-        // クリア演出
-        this.showClearEffect(() => {
-            this.endGameAndTransition();
-        });
-    }
+    // clearGame()メソッドは生存ゲームでは使用しない
 
     endGame() {
         // 既に終了している場合は何もしない
@@ -416,11 +408,21 @@ class SpaceDebrisScene extends BaseGameScene {
         this.meteors.forEach(meteor => meteor.destroy());
         this.meteors = [];
 
-        // 失敗判定
-        const isSuccess = this.destroyedCount >= this.clearCondition;
+        // 成功判定（生存できたか）
+        const isSuccess = this.hitCount === 0;
         
-        if (!isSuccess) {
-            // 失敗音を一度だけ再生
+        if (isSuccess) {
+            // クリア！
+            const score = this.destroyedCount * 100 + 500; // 生存ボーナス
+            ScoreManager.addScore(score);
+            ScoreManager.completeGame();
+            this.showClearEffect(() => {
+                this.endGameAndTransition();
+            });
+        } else {
+            // 失敗
+            const score = this.destroyedCount * 100;
+            ScoreManager.addScore(score);
             this.showFailEffect();
             
             // 失敗メッセージ

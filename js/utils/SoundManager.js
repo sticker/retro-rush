@@ -151,6 +151,10 @@ class SoundManager {
         document.removeEventListener('click', unlockAudio);
         document.removeEventListener('touchend', unlockAudio);
         
+        // スマホ用: 極小音量でテスト音を再生して音声システムを確実に有効化
+        this.scene.time.delayedCall(100, () => {
+          SoundManager.play('beep', { volume: 0.01 }); // 極小音量
+        });
         
       } catch (error) {
         // エラーは無視して続行

@@ -184,7 +184,9 @@ class GameOverScene extends Phaser.Scene {
     
     // 各ゲームのクリア状況を取得
     const completedGames = new Set();
-    for (let i = 0; i < state.currentGame; i++) {
+    // 最終結果画面では全9ゲーム（0-8）をチェックする必要がある
+    // currentGameは8なので、<=を使って8も含める
+    for (let i = 0; i <= state.currentGame; i++) {
       const gameKey = state.gameSequence[i];
       if (state.completedGames.has(gameKey + i)) {
         completedGames.add(i);
@@ -204,7 +206,7 @@ class GameOverScene extends Phaser.Scene {
           fontFamily: UI_CONFIG.FONT.family,
           color: '#ffffff'
         }).setOrigin(0.5);
-      } else if (i < state.currentGame + 1) {
+      } else if (i <= state.currentGame) {
         // プレイしたが失敗したゲーム - 赤い×
         const failCircle = this.add.circle(x, indicatorY, 6, 0xff0000);
         failCircle.setStrokeStyle(1.5, 0xff0000);

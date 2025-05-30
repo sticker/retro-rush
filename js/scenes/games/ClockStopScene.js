@@ -14,7 +14,7 @@ class ClockStopScene extends BaseGameScene {
         this.successCount = 0; // 成功回数
         this.isPlaying = false;
         this.clockHand = null;
-        this.currentSpeed = 1.5; // 初期回転速度
+        this.currentSpeed = 200; // 初期回転速度（度/秒）
         this.canTap = true; // タップ可能フラグ
         this.targetAngle = 0; // 12時の角度（0度）
         this.gameEnded = false; // ゲーム終了フラグ
@@ -184,8 +184,10 @@ class ClockStopScene extends BaseGameScene {
     }
 
     startRotation() {
-        // 針の回転速度をランダムに変更（ゆっくりに調整）
-        this.currentSpeed = Phaser.Math.FloatBetween(0.8, 2.0);
+        // 針の回転速度をランダムに変更（度/秒単位で設定）
+        // ラウンドごとに速度を上げる
+        const baseSpeed = 270 + (this.successCount * 60); // 成功するごとに速くなる（基準速度270度/秒 = 1.3秒で1回転）
+        this.currentSpeed = Phaser.Math.FloatBetween(baseSpeed * 0.8, baseSpeed * 1.2);
         
         // 時計回りか反時計回りかもランダム
         if (Phaser.Math.Between(0, 1) === 0) {
@@ -215,11 +217,12 @@ class ClockStopScene extends BaseGameScene {
         SoundManager.play('push');
     }
 
-    update() {
+    update(time, delta) {
         if (!this.isPlaying || !this.clockHand) return;
 
-        // 針を回転
-        this.clockHand.angle += this.currentSpeed;
+        // 針を回転（delta timeベースで一定速度を保証）
+        const rotationAmount = (this.currentSpeed * delta) / 1000; // delta はミリ秒なので秒に変換
+        this.clockHand.angle += rotationAmount;
         
         // 角度を0-360の範囲に正規化
         if (this.clockHand.angle < 0) {

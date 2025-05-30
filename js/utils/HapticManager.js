@@ -8,36 +8,32 @@ class HapticManager {
   static vibrate(pattern) {
     try {
       if (this.isSupported()) {
-        // iOSでは動作しないが、エラーは出さない
-        const result = navigator.vibrate(pattern);
-        if (!result) {
-          console.log('Vibration not supported on this device');
-        }
+        // Chrome for Android等で動作
+        navigator.vibrate(pattern);
       }
     } catch (e) {
       // エラーは静かに処理（iOSなど非対応環境のため）
-      console.log('Vibration not available:', e.message);
     }
   }
   
   static success() {
-    this.vibrate([0, 20, 30, 20]);
+    this.vibrate([50, 50, 100]); // 短・短・長のパターン
   }
   
   static fail() {
-    this.vibrate([0, 50]);
+    this.vibrate([200]); // 長めの振動
   }
   
   static perfect() {
-    this.vibrate([0, 10, 10, 10, 10, 10]);
+    this.vibrate([50, 50, 50, 50, 200]); // 短い振動の後に長い振動
   }
   
   static tap() {
-    this.vibrate([10]); // シンプルな10ms振動
+    this.vibrate([30]); // シンプルなタップ振動
   }
   
   static countdown() {
-    this.vibrate([30]);
+    this.vibrate([100]); // カウントダウン用
   }
 }
 

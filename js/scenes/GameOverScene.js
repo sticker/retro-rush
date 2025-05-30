@@ -33,9 +33,9 @@ class GameOverScene extends Phaser.Scene {
       // 通常モード
       const state = ScoreManager.getGameState();
       
-      // 次のゲームがあるかチェック
-      ScoreManager.incrementGame();
-      const hasMoreGames = ScoreManager.hasMoreGames();
+      // 次のゲームがあるかチェック（incrementはまだしない）
+      // currentGame + 1 < 9 つまり、currentGame < 8 なら次のゲームがある
+      const hasMoreGames = state.currentGame < state.gameSequence.length - 1;
       
       if (hasMoreGames) {
         // 次のゲームへ
@@ -78,9 +78,11 @@ class GameOverScene extends Phaser.Scene {
     const totalWidth = indicatorSpacing * 8; // 9つの丸の間隔
     const startX = centerX - totalWidth / 2;
     
-    // 各ゲームのクリア状況を取得（現在のゲームも含む）
+    // 各ゲームのクリア状況を取得（currentGameは現在のゲームのインデックス、0ベース）
     const completedGames = new Set();
-    for (let i = 0; i < state.currentGame; i++) {
+    const gamesPlayed = state.currentGame + 1; // プレイ済みゲーム数（1個目なら0+1=1）
+    
+    for (let i = 0; i < gamesPlayed; i++) {
       const gameKey = state.gameSequence[i];
       if (state.completedGames.has(gameKey + i)) {
         completedGames.add(i);
@@ -90,8 +92,8 @@ class GameOverScene extends Phaser.Scene {
     for (let i = 0; i < 9; i++) {
       const x = startX + (indicatorSpacing * i);
       
-      if (i < state.currentGame) {
-        // プレイ済みのゲーム（現在のゲームも含む）
+      if (i < gamesPlayed) {
+        // プレイ済みのゲーム
         if (completedGames.has(i)) {
           // クリアしたゲーム - 緑のチェックマーク
           const checkCircle = this.add.circle(x, indicatorY, 8, 0x00ff00);
@@ -202,7 +204,7 @@ class GameOverScene extends Phaser.Scene {
           fontFamily: UI_CONFIG.FONT.family,
           color: '#ffffff'
         }).setOrigin(0.5);
-      } else if (i < state.currentGame) {
+      } else if (i < state.currentGame + 1) {
         // プレイしたが失敗したゲーム - 赤い×
         const failCircle = this.add.circle(x, indicatorY, 6, 0xff0000);
         failCircle.setStrokeStyle(1.5, 0xff0000);
@@ -340,6 +342,9 @@ class GameOverScene extends Phaser.Scene {
   }
 
   startNextGame() {
+    // 次のゲームに進む前にカウントを増やす
+    ScoreManager.incrementGame();
+    
     const nextGame = ScoreManager.getCurrentGameScene();
     if (nextGame) {
       // 通常モードを維持して次のゲームへ

@@ -65,10 +65,9 @@ class SoundManager {
           // エラーは無視
         }
       } else {
-        console.warn(`Sound ${key} not loaded`);
         // フォールバック
         this.sounds[key] = {
-          play: () => console.log(`♪ ${key} sound would play here`)
+          play: () => {}
         };
       }
     });
@@ -111,6 +110,7 @@ class SoundManager {
           const sound = this.sounds[key];
           try {
             // 音量0で短時間再生して初期化
+            const originalVolume = sound.volume || this.volume;
             sound.setVolume(0);
             const playPromise = sound.play();
             
@@ -122,7 +122,8 @@ class SoundManager {
             // 少し待ってから停止
             await new Promise(resolve => setTimeout(resolve, 50));
             sound.stop();
-            sound.setVolume(this.volume);
+            // 元の音量に戻す
+            sound.setVolume(originalVolume);
           } catch (e) {
             // エラーは無視
           }
@@ -149,6 +150,7 @@ class SoundManager {
         document.removeEventListener('touchstart', unlockAudio);
         document.removeEventListener('click', unlockAudio);
         document.removeEventListener('touchend', unlockAudio);
+        
         
       } catch (error) {
         // エラーは無視して続行

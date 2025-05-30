@@ -105,34 +105,40 @@ class SpaceDebrisScene extends BaseGameScene {
         // 宇宙船のグループ
         this.spaceship = this.add.container(centerX, centerY);
 
-        // 宇宙船の本体
+        // 宇宙船の本体（より宇宙船らしい形状に）
         const body = this.add.polygon(0, 0, [
-            -20, 10,
-            0, -20,
-            20, 10,
-            0, 5
+            -15, 15,    // 左下
+            -20, 5,     // 左中
+            -10, -15,   // 左上
+            0, -25,     // 先端
+            10, -15,    // 右上
+            20, 5,      // 右中
+            15, 15,     // 右下
+            0, 10       // 下中央
         ], 0x00ff00);
         body.setStrokeStyle(2, 0xffffff);
 
-        // コックピット
-        const cockpit = this.add.circle(0, -5, 8, 0x0088ff);
-        cockpit.setStrokeStyle(2, 0xffffff);
+        // コックピット（中央に配置）
+        const cockpit = this.add.circle(-20, -30, 6, 0x00ffff);
+        cockpit.setStrokeStyle(1.5, 0xffffff);
 
-        // エンジン炎
-        const flame1 = this.add.triangle(-10, 15, -5, 10, -15, 10, 0xff8800);
-        const flame2 = this.add.triangle(10, 15, 15, 10, 5, 10, 0xff8800);
+        // エンジン炎（下向きに3つ、位置を少し左に調整）
+        const flame1 = this.add.triangle(-20, 5, -15, 10, -18, 25, -12, 25, 0xffaa00);
+        const flame2 = this.add.triangle(-10, 5, -5, 10, -8, 28, -2, 28, 0xff6600);
+        const flame3 = this.add.triangle(0, 5, 5, 10, 2, 25, 8, 25, 0xffaa00);
 
         // 炎のアニメーション
         this.tweens.add({
-            targets: [flame1, flame2],
-            scaleY: 1.5,
-            alpha: 0.7,
+            targets: [flame1, flame2, flame3],
+            scaleY: { from: 0.8, to: 1.3 },
+            alpha: { from: 0.5, to: 1 },
             duration: 100,
             yoyo: true,
-            repeat: -1
+            repeat: -1,
+            ease: 'Sine.easeInOut'
         });
 
-        this.spaceship.add([body, cockpit, flame1, flame2]);
+        this.spaceship.add([flame1, flame2, flame3, body, cockpit]);
 
         // 宇宙船の微妙な浮遊感
         this.tweens.add({
@@ -348,14 +354,23 @@ class SpaceDebrisScene extends BaseGameScene {
         // 振動
         HapticManager.fail();
         
-        // 宇宙船を赤く点滅
-        this.tweens.add({
-            targets: this.spaceship.list[0], // 本体
-            fillColor: { from: 0x00ff00, to: 0xff0000 },
-            duration: 100,
-            yoyo: true,
-            repeat: 3
-        });
+        // 宇宙船を赤く点滅（本体を取得）
+        const bodyIndex = 3; // flame1, flame2, flame3, bodyの順なので、bodyは index 3
+        const body = this.spaceship.list[bodyIndex];
+        
+        if (body) {
+            this.tweens.add({
+                targets: body,
+                fillColor: { from: 0x00ff00, to: 0xff0000 },
+                duration: 100,
+                yoyo: true,
+                repeat: 3,
+                onComplete: () => {
+                    // 元の色に戻す
+                    body.setFillStyle(0x00ff00);
+                }
+            });
+        }
         
         // 画面を揺らす
         this.cameras.main.shake(200, 0.01);

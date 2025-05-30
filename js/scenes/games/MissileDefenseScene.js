@@ -129,12 +129,30 @@ class MissileDefenseScene extends BaseGameScene {
     const missile = this.add.rectangle(startX, startY, 12, 30, 0xff0000);
     missile.setStrokeStyle(2, 0xaa0000);
     
-    // ミサイルの先端
-    const tip = this.add.triangle(startX, startY - 20, 0, 15, 6, 0, -6, 0, 0xffff00);
+    // ミサイルの先端（下向き、本体の真下に接続）
+    // add.triangleの引数: (x中心, y中心, x1, y1, x2, y2, x3, y3)
+    const tip = this.add.triangle(startX, startY + 18, 0, 0, 14, 0, 7, 15, 0xffff00);
+    tip.setStrokeStyle(1, 0xff6600);
     
-    // ミサイルの炎エフェクト（軽量化）
-    const flame = this.add.circle(startX, startY + 20, 6, 0xff8800);
-    flame.setAlpha(0.6);
+    // ミサイルの炎エフェクト（上部に配置、本体の真上に）
+    const flame = this.add.polygon(startX, startY - 15, [
+        1, 0,
+        -1, -8,
+        5, -12,
+        11, -8,
+        9, 0
+    ], 0xff8800);
+    
+    // 炎の点滅アニメーション
+    this.tweens.add({
+        targets: flame,
+        alpha: { from: 0.3, to: 1 },
+        scaleY: { from: 0.8, to: 1.2 },
+        duration: 100,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+    });
     
     missile.tip = tip;
     missile.flame = flame;

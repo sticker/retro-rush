@@ -53,7 +53,8 @@ class GameSelectScene extends Phaser.Scene {
       { key: 'SpaceDebrisScene', name: 'スペースデブリ', color: 0x000033 },
       { key: 'ClockStopScene', name: 'クロックストップ', color: 0x4169e1 },
       { key: 'ShapeSortScene', name: 'シェイプソート', color: 0x2ecc71 },
-      { key: 'RocketLandingScene', name: 'ロケットランディング', color: 0xff6600 }
+      { key: 'RocketLandingScene', name: 'ロケットランディング', color: 0xff6600 },
+      { key: 'MemoryFlashScene', name: 'メモリーフラッシュ', color: 0xff69b4 }
     ];
     
     // スクロール可能なコンテナを作成

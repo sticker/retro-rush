@@ -52,7 +52,8 @@ class GameSelectScene extends Phaser.Scene {
       { key: 'BalanceTowerScene', name: 'バランスタワー', color: 0xffa500 },
       { key: 'SpaceDebrisScene', name: 'スペースデブリ', color: 0x000033 },
       { key: 'ClockStopScene', name: 'クロックストップ', color: 0x4169e1 },
-      { key: 'ShapeSortScene', name: 'シェイプソート', color: 0x2ecc71 }
+      { key: 'ShapeSortScene', name: 'シェイプソート', color: 0x2ecc71 },
+      { key: 'RocketLandingScene', name: 'ロケットランディング', color: 0xff6600 }
     ];
     
     // スクロール可能なコンテナを作成

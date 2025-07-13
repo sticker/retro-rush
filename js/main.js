@@ -11,6 +11,7 @@ import NumberChainScene from './scenes/games/NumberChainScene.js';
 import SpaceDebrisScene from './scenes/games/SpaceDebrisScene.js';
 import ClockStopScene from './scenes/games/ClockStopScene.js';
 import ShapeSortScene from './scenes/games/ShapeSortScene.js';
+import RocketLandingScene from './scenes/games/RocketLandingScene.js';
 
 // Phaserゲーム設定
 const config = {
@@ -40,6 +41,7 @@ const config = {
     SpaceDebrisScene,
     ClockStopScene,
     ShapeSortScene,
+    RocketLandingScene,
     GameOverScene
   ]
 };

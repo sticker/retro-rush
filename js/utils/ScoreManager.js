@@ -34,6 +34,7 @@ class ScoreManager {
       'SpaceDebrisScene',
       'ClockStopScene',
       'ShapeSortScene',
+      'RocketLandingScene'
     ];
     
     // 9つのゲーム全てをランダムな順序で選択
